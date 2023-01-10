@@ -1,0 +1,9 @@
+Known Issues
+
+General:
+- Saving figures as png does not reproduce the figure dimensions to 100 % (but approximately).
+  If perfect reproduction is required, save as .svg or .pdf and convert to png.
+  saving as jpg does not work currently.
+
+TA App:
+- since matplotlib update, movie saving results in crash or empty file. Button currently disabled.

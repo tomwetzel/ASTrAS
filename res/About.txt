@@ -1,0 +1,2 @@
+directory for static resources, e.g. images.
+Currently no such resources are being used, i.e. this directory is a placeholder.

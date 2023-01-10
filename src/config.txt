@@ -1,0 +1,58 @@
+#Contains standard settings for exporting figures for my PhD thesis. 
+#CAN BE IGNORED by other users
+#
+#Start up configuration file for TA_GUI and related apps.
+#Please only change if you know what you are doing.
+<ui_closing_warning = False>
+<geometry = 1400x900>
+<scrollable = False>
+<init_canv_geom = 175x160>
+### Plot Options:
+<2Dmap_invert_y = True>
+<2Dmap_transpose = False>
+<figure_std_size = 500x350>
+####### Matplotlib default parameters:
+<plotstyle = tableau-colorblind10>			# Changing this may require restarting python kernel to have any effect
+<font = Computer Modern Roman>
+<xtick_format_sci = -3,4>		# Scientific format for axis ticks; tuple: scilimits in ticklabel_format method (see matplotlib docs) (
+<ytick_format_sci = -3,4>
+########### mpl rcParams, see documentation to change default plot properties
+%%% mpl rcParams 			# Do not change this line!
+<savefig.format = pdf>
+<font.size = 27>
+<font.family = serif>
+<font.serif = Times New Roman>
+<legend.fontsize = 22>
+<legend.handlelength = 1.5>
+<lines.linewidth = 3>
+<lines.linestyle = ->
+<lines.marker = None>
+<lines.markersize = 5>
+<markers.fillstyle = full>
+<axes.facecolor = white>
+<axes.grid = True>
+#<grid.color = grey>
+<grid.linestyle = :>
+<xtick.labelsize = 20>
+<ytick.labelsize = 20>
+<savefig.dpi = 600>
+%%% 					# Do not change this line!
+<fit_linestyle = ->
+<fit_linewidth = 2>
+<fit_marker = None>
+<fit_markersize = 5>
+<fit_color = black>
+<xlabel_pos = 0.5,-0.1>
+<ylabel_pos = -0.13,0.5>					
+### Data input specs:
+<input_spectral_quantity = wavelength>
+<input_spectral_unit = nm>
+<input_time_unit = ps>
+<input_time_conversion_factor = 1000.0>
+<time_delay_precision = 3>
+<xlabel_default = wavelength (nm)>
+<ylabel_default = time delay (ps)>
+<clabel_default = $\Delta$ Abs. (mOD)>
+### Default UI values:
+<xlim_lower = 395>
+<xlim_upper = 690>

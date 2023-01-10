@@ -1,0 +1,21 @@
+Planned features for the astras software package
+
+A) Common launcher for the different apps
+
+B) TA app:
+	1) Global/Target analysis: alternative option to calculate DAS as weighted superposition of SVD components
+				   reenable nonlinear constraints by wrapping of parameters in GlobalFit object
+	2) Loading custom kinetic models from text file. Via method of class FitModels
+	3) Simultaneous fit of multiple traces using one model (One species per trace)
+	4) Edit config file via App instead of txt file
+
+
+
+
+
+Coding to do:
+
+- check private versus public attributes and methods
+- disabling/enabling widgets not via having widgets in dictionaries, but using .children attributes. long term: omit dicts for variables
+- remove unneeded references (class attributes)
+- make class PlotData obsolete
