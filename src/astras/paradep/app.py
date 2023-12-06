@@ -6,19 +6,14 @@ Created on Fri Dec 25 23:13:16 2020
 """
 
 import tkinter as tk
-# from tkinter import ttk
 import os
 import re
 import traceback
-# import numpy as np
 
 from queue import Queue
-# import threading
 from ..common.helpers import ThreadedTask
-
 from ..common.dataobjects import TAParameterDependence
 from ..common.tk.figures import TkMplFigure, open_topfigure
-
 from ..common.tk.general import GroupBox, CustomFrame, CustomProgressbarWindow
 
 
@@ -94,9 +89,6 @@ class AppMain(tk.Tk):
         self.quantity_mode_select.grid(row=1, column=1, sticky='we')
 
         self.settings_groupbox.grid(row=1, column=1, rowspan=2, sticky='wnse')
-
-#        self.status_label = tk.ttk.Label(self.main_frame, text = "Idle")
-#        self.status_label.grid(row = 4, column = 0, sticky = 'w')
 
         self.window_opts_frame = tk.Frame(self.settings_groupbox)
         self.window_opts = GroupBox(
@@ -435,9 +427,6 @@ class AppMain(tk.Tk):
     def sort_scans(self, *args):
         def main_task(*args, **kwargs):
             self.data_obj.sort_scans_and_average(*args, **kwargs)
-
-
-#                self.after(1, lambda: self.status_label.config(text = lb))
         if not self.data_obj.data_loaded:
             return
         self.is_running = True
@@ -450,24 +439,6 @@ class AppMain(tk.Tk):
                                  interruptible=True, out_queue=self.queue,
                                  sortmode=self.sortmode)
         self.task.start()
-    #     self.listener = threading.Thread(
-    #         target = self.update_label, args = (self.queue,))
-    #     self.listener.start()
-    #     self.queue.join()
-    #     print('hi4')
-    #     self.data_obj.sort_scans_and_average(
-    #         sortmode = mode_dict[self.para_read_mode.get().lower()])
-    #     self.map_fig.plot_all()
-
-    # def update_label(self, in_queue):
-    #     while self.is_running:
-    #         lb = in_queue.get()
-    #         if lb is False:
-    #             return
-    #         self.after(10, self.status_label.config(text = lb[1][0]))
-
-    #         self.after(1)
-    #         print(lb)
 
     def after_finishing(self):
         self.is_running = False
@@ -481,6 +452,3 @@ class AppMain(tk.Tk):
                 label=scan, command=lambda o=scan: self.scan_to_plot.set(o))
         self.scan_to_plot.set(scan)
         self.progbar_win.destroy()
-
-# app = App()
-# app.mainloop()

@@ -13,7 +13,6 @@ from astras.stabs.app import AppMain as Stabs
 from astras.paradep.app import AppMain as ParaDep
 from astras.common.tk.figures import FigureEditor
 from astras.common.tk.general import CustomFrame
-# from astras.ta.app import AppMain
 
 
 def launch(*args, window_pad=40, **kwargs):
@@ -25,7 +24,6 @@ class Launcher(tk.Tk):
     def __init__(self, *args, window_pad=40,
                  config_path='config.txt', **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
-        # self.geometry(geometry)
         frame = CustomFrame(self, dim=(1,6))
         frame.grid(sticky='wnse', padx=window_pad, pady=window_pad)
         self.title("ASTrAS Launcher")
@@ -71,5 +69,3 @@ class Launcher(tk.Tk):
     def launch_figure_edit(self):
         win = FigureEditor(parent=self, config_filepath=self.config_path)
         self.wait_window(win)
-        
-# launch()

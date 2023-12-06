@@ -117,9 +117,8 @@ def enable_disable_child_widgets(parent, case='enable'):
     for child in parent.winfo_children():
         child.configure(state=case)
 
+
 # classes
-
-
 class TkVarMimic():
     def __init__(self, value=None):
         self._value = value
@@ -165,7 +164,6 @@ class CustomFrame(tk.Frame):
                               **frame_kwargs)
         else:
             tk.Frame.__init__(self, parent, **frame_kwargs)
-#        ttk.Frame.__init__(self, parent, style = "Custom.TFrame")
         for i in range(dim[0]):
             self.columnconfigure(i, weight=weight)
         for i in range(dim[1]):
@@ -247,11 +245,9 @@ class MultipleOptionsWindow(tk.Toplevel):
         if self.boxes['all'][0].get():
             for o in self.opts:
                 self.boxes[o][0].set(1)
-#                self.boxes[o][1].select()
         else:
             for o in self.opts:
                 self.boxes[o][0].set(0)
-#                self.boxes[o][1].deselect()
 
 
 class EntryDialog(tk.Toplevel):
@@ -292,7 +288,6 @@ class EntryDialog(tk.Toplevel):
                 except Exception:
                     pass
         self.button_frame = CustomFrame(self, dim=(2, 1))
-#        self.button_frame = tk.Frame(self)
         ttk.Button(self.button_frame, text="OK",
                    command=self.quit_window).grid(
                        row=0, column=0, padx=5, pady=5)
@@ -308,118 +303,6 @@ class EntryDialog(tk.Toplevel):
         for var in self.vars:
             self.output.append(var.get())
         self.destroy()
-
-
-# class Editable4ColumnTable(tk.Frame):
-#     def __init__(self, parent, controller, master=None,
-#                  headers=[], labels=[], subLabels=[],
-#                  values=None, title=None, entryWidth=10,
-#                  padx=2, pady=2, borders=True,
-#                  width=300, height=200):
-#         if borders:
-#             tk.Frame.__init__(
-#                 self, parent, highlightbackground="grey",
-#                 highlightthickness=1, bd=0)
-#         else:
-#             tk.Frame.__init__(self, parent)
-#         for i in range(2):
-#             self.columnconfigure(i, weight=1)
-#         for i in range(10):
-#             self.rowconfigure(i, weight=1)
-#         self.headers = headers if len(headers) == 4 else ['1', '2', '3', '4']
-#         self.labels = labels if len(labels) > 0 else ['1']
-#         self.subLabels = subLabels if len(subLabels) > 0 else ['1', '2']
-#         self.entries = {}
-#         self.entryVals = {}
-#         self.labelWidgets = {}
-#         self.headerWidgets = []
-#         self.values = values
-#         self.padx, self.pady = padx, pady
-#         self.title = title
-#         self.entryWidth = entryWidth
-
-#         self.canvas = tk.Canvas(self, width=width, height=height)
-#         self.frame = tk.Frame(self.canvas)
-#         self.scrollbar = tk.Scrollbar(self, orient="vertical",
-#                                       command=self.canvas.yview)
-#         self.canvas.configure(yscrollcommand=self.scrollbar.set)
-#         self.scrollbar.grid(row=0, column=1, sticky='sne')
-#         self.canvas.grid(sticky='wnse', row=0, column=0)
-#         self.frameWindow = self.canvas.create_window(
-#             (1, 1), window=self.frame, anchor='nw', tags="self.frame")
-#         self.frame.bind(
-#             "<Configure>", lambda *args: self.canvas.config(
-#                 scrollregion=self.canvas.bbox("all")))
-#         self.canvas.bind("<Configure>", self.config_canvas)
-
-#         self.generateNewTable()
-
-#     def config_canvas(self, e):
-#         self.canvas.itemconfig(
-#             self.frameWindow, height=e.height, width=e.width)
-# #        self.canvas.config(scrollregion = self.canvas.bbox("all"))
-
-#     def updateTableShape(self):
-#         self.deletePreviousTable()
-#         self.generateNewTable()
-
-#     def deletePreviousTable(self):
-#         self.entryVals = {}
-#         for lw in self.labelWidgets.values():
-#             lw.grid_forget()
-#         self.labelWidgets = {}
-#         for ew in self.entries.values():
-#             ew.grid_forget()
-#         self.entries = {}
-#         for hw in self.headerWidgets:
-#             hw.grid_forget()
-#         self.headerWidgets = []
-
-#     def generateNewTable(self):
-#         if self.title is None:
-#             j = 0
-#         else:
-#             j = 1
-#             self.titleLabel = tk.Label(
-#                 self.frame, text=self.title, width=self.entryWidth)
-#             self.titleLabel.grid(row=0, column=0, columnspan=4)
-#         for i in range(4):
-#             self.headerWidgets.append(
-#                 tk.Label(self.frame, text=self.headers[i],
-#                          width=self.entryWidth))
-#             self.headerWidgets[i].grid(row=j, column=i, sticky=tk.W)
-#         k = 0
-#         i = 0
-#         for label in self.labels:
-#             self.labelWidgets[str(k)] = tk.Label(
-#                 self.frame, text=label, width=self.entryWidth)
-#             self.labelWidgets[str(k)].grid(
-#                 row=i + j + 1, column=0, sticky=tk.W)
-#             firstRow = i + j + 1
-#             for sl in self.subLabels:
-#                 if sl == "offset":
-#                     self.entryVals[str(k) + self.headers[3]] = tk.DoubleVar()
-#                     self.entries[str(k) + self.headers[3]] = tk.Entry(
-#                         self.frame,
-#                         textvariable=self.entryVals[str(k) + self.headers[3]],
-#                         width=self.entryWidth)
-#                     self.entries[str(k) + self.headers[3]].grid(
-#                         row=firstRow, column=3, padx=self.padx,
-#                         pady=self.pady)
-#                 else:
-#                     for m in (1, 2):
-#                         self.entryVals[str(k) + sl +
-#                                        self.headers[m]] = tk.DoubleVar()
-#                         self.entries[str(k) + sl + self.headers[m]] = tk.Entry(
-#                             self.frame,
-#                             textvariable=self.entryVals[
-#                                 str(k) + sl + self.headers[m]],
-#                             width=self.entryWidth)
-#                         self.entries[str(k) + sl + self.headers[m]].grid(
-#                             row=i + j + 1, column=m,
-#                             padx=self.padx, pady=self.pady)
-#                     i = i + 1
-#             k = k + 1
 
 
 class CustomTimer(tk.Label):
@@ -515,7 +398,6 @@ class CustomProgressbar(tk.Frame):
         self.bar["maximum"] = n
         if start_timer:
             self.start_timer()
-        # self.bar.start()
 
     def start_timer(self):
         self.starting_time = time.time()
@@ -569,7 +451,6 @@ class CustomProgressbar(tk.Frame):
 
 
 # %%
-
 class MultiDisplayWindow(tk.Toplevel):
     def __init__(self, parent, *frame_args, controller=None, title=None,
                  header=None, close_button=None, **frame_kwargs):
@@ -628,11 +509,7 @@ class MultiDisplay(tk.Frame):
 
         if input_dict:
             self.add_frames(input_dict)
-
-#        self.select_frame()
-
         self.selected_frame.trace('w', self.show_frame)
-#        if self.mode == 'expandable':
 
     def add_frames(self, input_dict):
         if self.mode == 'simple':
@@ -676,8 +553,6 @@ class MultiDisplay(tk.Frame):
                 for k in self.sub_frames[key].keys():
                     self.toggle_sub_frame(frame=key, key=k)
         menu = self.frame_select['menu']
-#        for i in range(menu.index("end")+1):
-#            values.add(menu.entrycget(i, "label"))
         menu.delete(0, 'end')
         for key in self.frames.keys():
             menu.add_command(
@@ -707,9 +582,8 @@ class MultiDisplay(tk.Frame):
         if self.update_parent:
             self.update_parent()
 
+
 # %%
-
-
 class BusyWindow(tk.Toplevel, tk.Frame):
     def __init__(self, parent, controller, task_name='calculations',
                  message='', case='Toplevel'):
@@ -794,7 +668,6 @@ class ScrollFrame(CustomFrame):
         self.widget.bind(
             "<Configure>", lambda *args:
                 self.canvas.config(scrollregion=self.canvas.bbox("all")))
-#        self.canvas.bind("<Configure>", self._config_canvas)
         self.frame_window = self.canvas.create_window(
             (1, 1), window=self.widget, anchor='nw', tags="self.widget")
         self.canvas.grid(row=0, column=0, sticky='wnse')

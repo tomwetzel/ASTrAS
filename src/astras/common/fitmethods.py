@@ -6,25 +6,14 @@ Created on Thu Apr 23 10:29:15 2020
 """
 
 import re
-# import matplotlib.pyplot as plt
-# import matplotlib as mpl
 import numpy as np
 
 import random
 
 from scipy.special import erf, wofz
-# from scipy.optimize import basinhopping, Bounds
 from scipy.signal import find_peaks
-
-# import threading
-# from queue import Queue
-# from time import sleep
 from .helpers import BlankObject, split_string_into_lines
-# import ctypes
-
 import lmfit
-# import traceback
-# import colour
 
 
 # %%
@@ -117,7 +106,7 @@ class FitModels():
                       'number_of_decays': 4,
                       'func': self._kinetic_branch_seven},
             'ACDE|BCDE': {'mechanism': "A->C, B->C; C->D; D->E",
-                          'tau_order': ["AC", "BC", "CD", "DE"],
+                          'tau_order': ["AC", "BC", "CD", "DE", "E"],
                           'number_of_species': 5,
                           'number_of_decays': 5,
                           'func': self._kinetic_branch_eight}}
@@ -132,7 +121,6 @@ class FitModels():
                                     'number_of_decays': len(key),
                                     'number_of_species': len(key),
                                     'func': self._kinetic_chain}
-            # self.model_dict[key]['tau_order'] = []
             for i in range(1, len(key)):
                 self.model_dict[key]['tau_order'].append(
                     alpha_string[i-1:i+1])
@@ -206,7 +194,6 @@ class FitModels():
         return k, tau
 
     # set model function by name
-
     def set_model(self, name, base_func='exp'):
         try:
             if type(name) is int:
@@ -269,10 +256,8 @@ class FitModels():
                     t, p, **kw)
         else:
             return
-        # return self._func(f, t, p, **kw)
 
     # specific model functions
-
     def _parallel(self, f, t, p, num_comp=2, **kwargs):
         y = np.zeros((num_comp, len(t)))
         for i in range(num_comp):
@@ -432,8 +417,8 @@ class FitModels():
         # parameter q. preliminarily fixed to 0.5 (equal distribution)
         q = 0.5
         # A(t) and B(t)
-        c = [np.array(q*f(t, p['tau_1'])),
-             np.array((1-q)*f(t, p['tau_2']))]
+        c = [np.array(q * f(t, p['tau_1'])),
+             np.array((1-q) * f(t, p['tau_2']))]
         # C(t)
         c.append(np.array(
             k[0] * q / (k[2]-k[0]) * (f(t, tau[0]) - f(t, tau[2]))
@@ -443,7 +428,7 @@ class FitModels():
             k[2] * k[0] * q / (k[2]-k[0]) * (
                 1 / (k[3]-k[0]) * (f(t, tau[0])-f(t, tau[3]))
                 - 1 / (k[3]-k[2]) * (f(t, tau[2])-f(t, tau[3])))
-            + k[2] * k[1] * (q-1) / (k[2]-k[1]) * (
+            + k[2] * k[1] * (1-q) / (k[2]-k[1]) * (
                 1 / (k[3]-k[1]) * (f(t, tau[1])-f(t, tau[3]))
                 - 1 / (k[3]-k[2]) * (f(t, tau[2])-f(t, tau[3])))))
         # E(t)
@@ -452,22 +437,20 @@ class FitModels():
                  * (f(t, tau[0])-f(t, tau[4]))
              + k[1] * (1-q) / ((k[2]-k[1]) * (k[3]-k[1]) * (k[4]-k[1]))
                  * (f(t, tau[1])-f(t, tau[4]))
-             - (k[1] * q / ((k[4]-k[2]) * (k[4]-k[0]) * (k[3]-k[2]))
-                + k[2] * (1-q) / ((k[4]-k[2]) * (k[2]-k[1]) * (k[3]-k[2])))
+             - (k[0] * q / ((k[4]-k[2]) * (k[2]-k[0]) * (k[3]-k[2]))
+                + k[1] * (1-q) / ((k[4]-k[2]) * (k[2]-k[1]) * (k[3]-k[2])))
                      * (f(t, tau[2])-f(t, tau[4]))
-             + 1 / (k[4]-k[2]) * (
+             + 1 / (k[4]-k[3]) * (
                  k[0] *  q / ((k[2]-k[0]) * (k[3]-k[0]))
                  + k[1] * (1-q) / ((k[2]-k[1]) * (k[3]-k[1]))
                  - k[0] * q / ((k[2]-k[0]) * (k[3]-k[2]))
                  - k[1] * (1-q) / ((k[2]-k[1]) * (k[3]-k[2])))
                      * (f(t, tau[4])-f(t, tau[3])))))
         return np.array(c)
-        
 
 # multi start fit wrapper functions:
 # run fit multiple times varying the guesses stochastically and
 # return results from fit with lowest lsq
-
 
 # wrapper for scipy (not used currently, but may be in the future)
 def multistart_scipy(solver, fit_function, p0, num_runs=10,
@@ -514,8 +497,6 @@ def multistart_lmfit(fit_function, params, num_runs=10,
 
 # %%
 """ global analysis """
-
-
 # class for two-dimensional Global fits (Global and target analysis).
 # Note: could be extended to more dimensions
 class GlobalFit():
@@ -538,7 +519,6 @@ class GlobalFit():
         self.error = "unknown"
         self.model_obj = FitModels()
         self.iter_count = 0
-        # self.result_for_ci = None
         self.ci = None
         self.number_of_decays = 2
         self.number_of_species = 2
@@ -566,9 +546,7 @@ class GlobalFit():
             return
         self.set_guesses(guesses=guesses)
         self.set_bounds(bounds=bounds)
-        # self.fitParameters = np.zeros(self.number_of_decays)
         self.error = None
-        # end of init
 
     def set_guesses(self, guesses=None):
         # reads guesses (if provided) and sets initial parameter values
@@ -634,7 +612,6 @@ class GlobalFit():
             self.number_of_species = self.number_of_decays
 
         if re.search('paral', model, re.I):
-            # self.model_obj.set_model('parallel')
             try:
                 no = int(re.findall('(?<=model)\d+', model)[-1])
             except Exception:
@@ -711,7 +688,6 @@ class GlobalFit():
         if self.number_of_decays <= 0:
             self.ycomps, self.x_comps, self.fit_matrix = (
                 self.calc_results([np.inf]))
-            # self.fitParameters = [np.inf]
             self.error = None
             self.result = BlankObject()
             self.result.message = ("All parameters have been fixed. "
@@ -740,9 +716,6 @@ class GlobalFit():
         if self.algorithm.lower() in ['least_squares', 'leastsq',
                                       'differential_evolution']:
             minimizer_kwargs['ftol'] = fun_tol
-        # if enable_nonl_constr and self.algorithm.lower() not in [
-        #         'ampgo', 'least_squares', 'leastsq']:
-        #     minimizer_kwargs['constraints'] = self._build_constraints()
         if bounds is not None:
             self.set_bounds(bounds=bounds)
         if guesses is not None:
@@ -776,7 +749,6 @@ class GlobalFit():
             self.ycomps, self.x_comps, self.fit_matrix = self.calc_results(
                 self.result.params)
             self.fit_matrix = np.transpose(self.fit_matrix)
-            # self.fitParameters = np.around(para_values, 3)
             self.error = None
 
     def fit_report(self):
@@ -796,15 +768,6 @@ class GlobalFit():
         report.append(self.result.message)
         report.append('Number of function evaluations: ' +
                       str(self.result.nfev))
-        # if self.enable_nonl_constr:
-        #     constr_check = self._test_constraints()
-        #     for key, val in constr_check.items():
-        #         if val > 0:
-        #             report.append(
-        #                 key
-        #                 + ' constraint violated for at least one component.')
-        #         else:
-        #             report.append(key + ' constraint satisfied.')
         return report
 
     def calculate_resid(self, p, queue=None):
@@ -876,119 +839,6 @@ class GlobalFit():
                 self.params[p].min = bounds[i]
                 self.params[p].max = bounds[self.number_of_decays + i]
         self.bounds = bounds
-
-    # def _build_constraints(self):
-    #     # nonlinear parameter constraints.
-    #     # currently not working with lmfit
-    #     def check_constraints_entry(key):
-    #         if key in self.constraints.keys():
-    #             if not self.constraints[key] is None:
-    #                 return self.constraints[key]
-    #         return False
-    #     self.nonl_constraints = []
-    #     constr_val = check_constraints_entry('min_para_ratio')
-    #     if constr_val:
-    #         self.nonl_constraints.append(
-    #             {'type': 'ineq',
-    #              'fun': lambda p:
-    #                  self.para_diff_constr(p, constr_val)})
-    #     constr_val = check_constraints_entry('max_amplitude_ratio')
-    #     if constr_val:
-    #         constr_val = np.max(np.max(np.abs(self.z))) * constr_val
-    #         if check_constraints_entry('total_population'):
-    #             self.nonl_constraints.append(
-    #                 {'type': 'ineq',
-    #                  'fun': lambda p: self.amp_and_pop_constr(
-    #                      p, constr_val,
-    #                      total_population=self.constraints[
-    #                          'total_population'])})
-    #         else:
-    #             self.nonl_constraints.append(
-    #                 {'type': 'ineq',
-    #                  'fun': lambda p: self.amp_constr(p, constr_val)})
-    #             return self.nonl_constraints
-    #     constr_val = check_constraints_entry('total_population')
-    #     if constr_val:
-    #         self.nonl_constraints.append(
-    #             {'type': 'ineq',
-    #              'fun': lambda p:
-    #                  self.pop_constr(p, total_population=constr_val)})
-    #     return self.nonl_constraints
-
-    # def _test_constraints(self):
-    #     key_dict = {'min_para_ratio': 'Minimum parameter ratio',
-    #                 'max_amplitude_ratio': 'Maximum amplitude ratio',
-    #                 'total_population': 'Total population'}
-    #     check = {}
-    #     for key, val in self.constraints.items():
-    #         if key == 'min_para_ratio' and val is not None:
-    #             check[key_dict[key]] = self.para_diff_constr(
-    #                 self.fitParameters, val)
-    #         elif key == 'max_amplitude_ratio' and val is not None:
-    #             constr_val = np.max(np.max(np.abs(self.z))) * val
-    #             check[key_dict[key]] = self.amp_constr(
-    #                 self.fitParameters, constr_val)
-    #         elif key == 'total_population' and val is not None:
-    #             check[key_dict[key]] = self.pop_constr(
-    #                 self.fitParameters, total_population=val)
-    #     return check
-
-    # # constraint functions
-
-    # def pop_constr(self, *args, total_population=1):
-    #     try:
-    #         y, x, f = self.calc_results(*args)
-    #     except Exception:
-    #         return 1
-    #     else:
-    #         constr = np.sum(y, axis=0) - total_population
-    #         return self.test_constraint(constr)
-
-    # def para_diff_constr(self, p, para_constraint, *args):
-    #     constr = []
-    #     for i in range(len(p) - 1):
-    #         for j in range(i + 1, len(p)):
-    #             constr.append(np.abs(p[i]-p[j]) - para_constraint*p[i]/100)
-    #     return self.test_constraint(constr)
-
-    # def amp_constr(self, p, amp_constraint,  *args):
-    #     constr = []
-    #     try:
-    #         y, x, f = self.calc_results(p, *args)
-    #     except Exception:
-    #         return 1
-    #     else:
-    #         for i in self._visible_comps:
-    #             constr.append(
-    #                 np.double(np.max(np.abs(x[:, i]) > amp_constraint)))
-    #     return self.test_constraint(constr)
-
-    # def amp_and_pop_constr(self, p, amp_constraint, *args,
-    #                        total_population=1):
-    #     constr = []
-    #     try:
-    #         y, x, f = self.calc_results(p)
-    #     except Exception:
-    #         return 1
-    #     else:
-    #         for i in self._visible_comps:
-    #             constr.append(
-    #                 np.double(np.max(np.abs(x[i, :]) > amp_constraint)))
-
-    #         constr.extend(np.sum(y, axis=0) - total_population)
-    #         return self.test_constraint(constr)
-
-    # def test_constraint(self, constr):
-    #     value = 0
-    #     for c in constr:
-    #         if c > 0:
-    #             value += c
-    #     if value > 0:
-    #         return value
-    #     else:
-    #         return -1
-
-
 # %%
 """ line fit """
 
@@ -1082,9 +932,8 @@ class LineFitParaDicts():
                 dct[val] = key
         return dct
 
+
 # %%
-
-
 class LineFit(LineFitParaDicts):
     def __init__(self, x=None, y=None, dy=None, model='exp', fixed_para=None,
                  para_correl=None,
@@ -1749,12 +1598,9 @@ class LineFit(LineFitParaDicts):
             comps.append(paras['kineticexp_amp_' + str(c)]*components[c - 1])
         if 'const_amp_1' in p.keys():
             if sigma is None:
-                # f = lambda *args, **kwa: exp(*args, t0=p['x0_1'], **kwa)
                 comps.append(
                     p['const_amp_1']*exp(x, np.inf, t0=p['x0_1']))
             else:
-                # f = lambda *args, **kwa: gauss_conv_exp(
-                #     *args, sigma, t0=p['x0_1'], **kwa)
                 comps.append(
                     p['const_amp_1']*gauss_conv_exp(
                         x, np.inf, sigma, t0=p['x0_1']))
@@ -1799,39 +1645,6 @@ class LineFit(LineFitParaDicts):
             return fun, comps
         else:
             return fun
-
-    # def _gaussian_fit_function_old(self, x, p, *args, return_comps=False,
-    #                               **kwargs):
-    #     def gaussian(mod):
-    #         return (p['gauss_amp' + mod]
-    #                 * np.exp(-0.5*((x-p['gauss_x0' + mod])**2)
-    #                          / p['gauss_sigma' + mod]**2))
-    #     fun = np.zeros(len(x))
-    #     comps = {}
-    #     for i in range(self.sub_functions['gauss']['degree']):
-    #         f = gaussian('_' + str(i + 1))
-    #         fun += f
-    #         comps['gauss_' + str(i+1)] = f
-
-    #     for key in ('osc', 'cos'):
-    #         if key in self.sub_functions.keys():
-    #             osc_fun = np.zeros(len(x))
-    #             for i in range(self.sub_functions[key]['degree']):
-    #                 f = np.cos(
-    #                     x * p["_omega_".join([key, str(i + 1)])]
-    #                     + p["_phi_".join([key, str(i + 1)])])
-    #                 osc_fun += f
-    #                 comps['osc_' + str(i + 1)] = f
-    #             fun = fun * osc_fun
-    #             break
-    #     if 'const' in self.sub_functions.keys():
-    #         f = p['const_amp_1']*np.ones(len(x))
-    #         fun += f
-    #         comps['const'] = f
-    #     if return_comps:
-    #         return fun, comps
-    #     else:
-    #         return fun
 
     def _gaussian_fit_function(self, *args, return_comps=False, **kwargs):
         f, comps = self._line_fit_function(*args, case='gauss', **kwargs)
@@ -1883,7 +1696,6 @@ class LineFit(LineFitParaDicts):
 
         if re.search('gau', case, re.I):
             fname = 'gauss'
-#            f = gaussian_fit
             f = gaussian_square_fit
         elif re.search('loren', case, re.I):
             fname = 'lorentz'
@@ -2050,5 +1862,3 @@ def lmfitreport_to_dict(report):
             pass
         dct["content"] = content
     return dct
-#    return {"type":"label",
-#                "content": content, "grid_kwargs":{"sticky":"wn"}}

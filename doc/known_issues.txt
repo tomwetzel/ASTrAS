@@ -7,3 +7,8 @@ General:
 
 TA App:
 - since matplotlib update, movie saving results in crash or empty file. Button currently disabled.
+- Saving trace to .mat file does not work properly. .txt works.
+
+Linefit:
+- After setting bounds and back to None, fit does not work as before.
+	Need to check that. Also add reset button for fix.

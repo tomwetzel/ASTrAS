@@ -42,19 +42,14 @@ class TraceSelection(GroupBox):
 
         self.select.bind(
             "<<ListboxSelect>>", self.select_click_callback)
-
         self.select_yscroll = tk.Scrollbar(select_frame)
-
         self.select.config(yscrollcommand=self.select_yscroll.set)
         self.select_yscroll.config(command=self.select.yview)
         self.select_yscroll.grid(row=0, column=1, sticky='nse')
-
         self.select_xscroll = tk.Scrollbar(select_frame, orient=tk.HORIZONTAL)
-
         self.select.config(xscrollcommand=self.select_xscroll.set)
         self.select_xscroll.config(command=self.select.xview)
         self.select_xscroll.grid(row=1, column=0, sticky='n')
-
         select_frame.grid(row=0, column=0, sticky='wne',
                           rowspan=span, padx=5, pady=5)
 

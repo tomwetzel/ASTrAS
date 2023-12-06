@@ -9,8 +9,6 @@ import re
 import os
 import json
 
-# from tkinter import messagebox
-
 import matplotlib.pyplot as plt
 
 from scipy.fft import fft, ifft, fftfreq
@@ -27,14 +25,9 @@ from .mpl import (plot, pcolor, fill_between, text_in_plot, PlotColorManager2D,
                   set_line_cycle_properties, get_fill_list)
 from .fitmethods import LineFit, GlobalFit
 
-# from importscan import import_scan_file
-# from generalTkMethods import save_box, load_box
-# from generalMethods import set_line_cycle_properties, GlobalFit
-# from generalMethods import plot, pcolor, fill_between, text_in_plot
-# from generalMethods import PlotColorManager2D, LineFit, get_fill_list
-
 
 def import_scan_file(fileName):
+    # function for importing from json files
     with open(fileName) as binfile:
         compiledScan = json.load(binfile)
         binfile.close()
@@ -75,9 +68,7 @@ class TAData:
                           '.scan': self.load_scan_json,
                           '.txt': self.load_scan_txt,
                           '.dat': self.load_scan_txt}
-
         self._is_loaded = False
-        # self.is_filtered = False
         self.pixel_binned = False
         self.chirp_corrected = False
         self.init_common_attributes(time_unit=time_unit)
@@ -94,7 +85,6 @@ class TAData:
         if not obj:
             obj = self
         obj.time_unit = time_unit
-        # obj.time_unit_raw = time_unit
         obj.time_unit_factors = {'ps': [1, 'fs'],
                                  'fs': [1e-3, 'as'],
                                  'ns': [1e3, 'ps'],
@@ -129,13 +119,9 @@ class TAData:
         obj.spec_unit = 'nm'
         obj.set_xlabel()
 
-    # def clear(self):
-    #     self.__init__()
-
     """ File Loading """
     # Master load functions
     # Loading data from single file
-
     def load_single_scan(self, path, filetype='.mat'):
         try:
             self.delA, self.wavelengths, self.time_delays, self.power = (
@@ -147,47 +133,6 @@ class TAData:
             self._write_obj_properties()
 
     # Averaging multiple scans
-
-    # simple average
-    # def average_scans_in_dir(self, path, filetypes=['.mat']):
-    #     def addScan(i, j):
-    #         self.delA = self.delA + self.load_dict[filetypes[i]](
-    #             path + "//" + files[j], load_all=False)
-
-    #     self.files = []
-    #     for n in range(len(filetypes)):
-    #         errors = []
-    #         files = [f for f in os.listdir(
-    #             path) if re.search('\\' + filetypes[n], f)]
-    #         if n == 0:
-    #             self.delA, self.wavelengths, self.time_delays, power = (
-    #                 self.load_dict[filetypes[n]](
-    #                     path + "//" + files[0], load_all=True))
-    #             self.files.append(files[0])
-    #         else:
-    #             try:
-    #                 addScan(n, 0)
-    #                 self.files.append(files[0])
-    #             except Exception as e:
-    #                 errors.append(files[0], e)
-    #         for i in range(1, len(files)):
-    #             try:
-    #                 addScan(n, i)
-    #                 self.files.append(files[i])
-    #             except Exception as e:
-    #                 errors.append(files[i] + ": " + str(e))
-    #         if len(errors) > 0:
-    #             m = "Error during averaging. Files skipped:\n"
-    #             for e in errors:
-    #                 m = m + e + ",\n"
-    #             errors = m[:-2]
-    #         else:
-    #             errors = None
-    #     self.delA = self.delA/len(self.files)
-    #     self._write_obj_properties()
-    #     return errors
-
-    # Advanced Averaging
     # Master function: Loading and averaging
     def load_and_average_scans(self, path, filetypes=['.mat'],
                                interpolate_nan=True, power_weight=False,
@@ -596,7 +541,7 @@ class TAData:
                     if k > 30:
                         break
 
-# Averaging and/or concatenating scans with different time points
+    # Averaging and/or concatenating scans with different time points
     def _average_point_by_point(self, interpolate_nan=True,
                                 nan_wl_window=None, remove_outliers=False,
                                 outlier_threshold=2, outlier_step=1,
@@ -847,9 +792,7 @@ class TAData:
         return outliers
 
     # Secondary loading functions, file type specific
-
     # Matlab files (.mat)
-
     def load_scan_mat(self, path, load_all=True):
         loaded_data = sio.loadmat(path, mdict=None, appendmat=True)
         try:
@@ -875,7 +818,6 @@ class TAData:
                 wavelengths = np.array(range(np.shape(delA)[1]))
             if time_delays is None:
                 time_delays = np.array(range(np.shape(delA)[0]))
-#
             try:
                 self.bkg = loaded_data["bkg"]
             except Exception:
@@ -1078,10 +1020,6 @@ class TAData:
         except Exception:
             raise
 
-    # def get_lambda_lim_values(self):
-    #     return np.sort(self.convert_spec_values(
-    #         self.lambda_lim, x_in='wavelength', x_out=self._xmode))
-
     def get_xlim_indices(self, limits=None):
         """ returns spectral indices for given limits or current default """
         if limits is None:
@@ -1145,7 +1083,6 @@ class TAData:
         self._unequal_time_steps = len(self.timesteps) > 1
 
     """ file saving """
-
     def save_plot_data(self, file, plot_data, parent=None):
         with open(file.name, 'wb') as f:
             np.savetxt(f, plot_data, delimiter=',')
@@ -1246,14 +1183,10 @@ class TAData:
                 x = cut_region[1][1]
                 y = self.time_delays
                 z = np.zeros((len(y), len(x)))
-                # pcolor(ax, cut_region[1][1], self.time_delays, np.zeros(
-                #     np.shape(cut_region[1][2])), **kwargs)
             elif cut_region[0].lower() == 'y':
                 y = cut_region[1][1]
                 x = self.spec_axis[self._xmode]
                 z = np.zeros((len(y), len(x)))
-                # pcolor(ax, self.spec_axis[self._xmode], cut_region[1][1],
-                #        np.zeros(np.shape(cut_region[1][2])), **kwargs)
             pcolor(ax, x, y, z, **kwargs)
 
     def plot_raw_scan(self, filename, *args, yvalues=None, **kwargs):
@@ -1268,23 +1201,6 @@ class TAData:
             *args, dat=delA, yvalues=yvalues,
             xvalues=self.raw_scans[filename]['wavelengths'],
             write_map=False, **kwargs)
-
-# deprecated function
-    # def set_clim(self, fig, cbar=None, mappable=None, clims='auto',
-    #              sym='symmetric'):
-    #     if mappable is None:
-    #         mappable = self.ta_map
-    #     if len(clims) != 2:
-    #         clims = self.get_clim(
-    #             self.delA[:, self._lambda_lim_index[0]:
-    #                        self._lambda_lim_index[1]],
-    #             opt=sym)
-    #     try:
-    #         mappable.set_clim(vmin=clims[0], vmax=clims[1])
-    #     except Exception:
-    #         pass
-    #     self.color.clims = clims
-    #     return clims
 
     def get_clim(self, dat, opt='symmetric', contrast=1, offset=0.0):
         if opt == 'symmetric':
@@ -1554,7 +1470,6 @@ class TAData:
         return self.zlabel
 
     """ chirp correction """
-
     def find_time_zeros(self, irf_threshold=10, algorithm='derivative',
                         write_to_obj=True):
         def find_chirp_index(f, thresh=irf_threshold, algo=algorithm):
@@ -1571,7 +1486,7 @@ class TAData:
             else:
                 ind = np.min([upper[0], lower[0]])
             return[ind]
-
+        
         time_zeros = np.zeros((len(self.spec_axis[self._xmode]), 2))
         time_zeros[:, 0] = self.spec_axis[self._xmode]
         if re.search('derivative', algorithm, re.I):
@@ -1639,20 +1554,9 @@ class TAData:
             self.time_zero_fit = fit_curve
             self.time_zero_abs = np.min(
                 self.time_zero_fit[self.get_xlim_slice()])
-            # self.time_zero_abs = np.min(self.time_zero_fit[range(
-            #     self._lambda_lim_index[0], self._lambda_lim_index[1] + 1)])
             return np.array(fit_obj.outliers)
         else:
             return np.array(fit_obj.outliers), fit_curve
-
-    # def correct_chirp_complete(self, irf_threshold=10, method='Fit chirp',
-    #                          algorithm='derivative',
-    #                          func='5th order polynomial',
-    #                          thresh=2):
-    #     self.find_time_zeros(irf_threshold=irf_threshold,
-    #                          algorithm=algorithm)
-    #     self.fit_time_zeros(func=func, thresh=thresh)
-    #     self.correct_chirp()
 
     def spectral_shift(self, y, data_mat=None, td=None, spec=None):
         if data_mat is None:
@@ -1685,8 +1589,6 @@ class TAData:
 
     def _correct_chirp(self, dat=None, correct_t0=True, queue=None,
                        truncate_wavelength=False):
-        # range_ind = slice(self._lambda_lim_index[0],
-        #                  self._lambda_lim_index[1] + 1)
         range_ind = self.get_xlim_slice()
         self.time_zero_fit = self.time_zero_fit - \
             np.min(self.time_zero_fit[range_ind])
@@ -1792,7 +1694,6 @@ class TAData:
             delA_non_cc = np.array(self.non_filt_delA)
         else:
             delA_non_cc = np.array(self.raw_delA)
-        # del self.raw_delA
         delA_expanded = np.zeros(
             (len(self.time_delays), np.shape(delA_non_cc)[1]))
         k = 0
@@ -1818,7 +1719,6 @@ class TAData:
             queue.put({'label': "Writing new data Matrix",
                        'i': 0, 'n': length})
         delA_cc = self.delA
-        # self.raw_delA = delA_non_cc
         self.time_delays = np.array(td)
         self.delA = np.zeros(np.shape(delA_non_cc))
         for j, ind in enumerate(tstep_inds):
@@ -1956,70 +1856,8 @@ class TAData:
 
     def wavelet_analysis(self, **kwargs):
         return self._fft_wavelet_wrap(case='wavelet', **kwargs)
-# Deprecated, to be removed
-    # def fft_mapOld(self, dat=None, x=None, xrange=None, xunit=None,
-    #               round_prec=None, data_reduct_crit=0.05):
-    #     if dat is None:
-    #         dat = self.delA
-    #     # Calculate frequency vector (wavenumbers)
-    #     if xunit is None:
-    #         xunit = self.time_unit
-    #     if round_prec is None:
-    #         try:
-    #             n = self.time_delay_precision
-    #         except Exception:
-    #             n = 10
-    #     else:
-    #         n = round_prec
-    #     if x is None:
-    #         x = self.time_delays
-    #     if xrange:
-    #         x = x[xrange[0]:xrange[1]]
-    #     self._get_time_steps(td=x, td_round_prec=n)
-    #     min_step = np.round(np.min(self.timesteps), n)
-    #     if len(self.timesteps) > 1:
-    #         dat, x = self._interpolate_time(dat, x, n, min_step)
-    #     error = None
-    #     if xunit in self.time_unit_factors.keys():
-    #         min_step = self.time_unit_factors[xunit][0]*min_step
-    #     else:
-    #         error = ("Unable to determine time delay unit. Assuming ps.")
-    #     f = fftfreq(len(x), d=min_step)[:len(x)//2] * 33.356
-    #     # Calculate fft along time axis
-    #     y = fft(np.fft.fftshift(dat, axes=-1), axis=-1)
-    #     y = y.astype(complex)
-    #     y = np.abs(2 * y/len(x))
-    #     y = y[:, :len(x)//2]
-    #     # reduce data if necessary
-    #     if len(self.timesteps) > 1:
-    #         f_step_fund = np.abs(f[1] - f[0])
-    #         f_step = f_step_fund
-    #         y_new = [y[:, 0]]
-    #         f_new = [f[0]]
-    #         ycurr = np.zeros(np.shape(y[:, 0]))
-    #         av_count = 0
-    #         for i in range(len(f)):
-    #             while f_step < f[i] * data_reduct_crit:
-    #                 f_step += f_step_fund
-    #             ycurr += y[:, i]
-    #             av_count += 1
-    #             if f[i] >= f_new[-1] + f_step:
-    #                 f_new.append(f[i])
-    #                 y_new.append(ycurr / av_count)
-    #                 ycurr = np.zeros(np.shape(y[:, 0]))
-    #                 av_count = 0
-    #             else:
-    #                 continue
-    #         y = np.transpose(np.array(y_new))
-    #         f = np.array(f_new)
-    #     try:
-    #         self._get_time_steps(td=None)
-    #     except Exception:
-    #         pass
-    #     return y, f, error
 
     """ Global Analysis """
-
     def svd_reduction(self, data_mat, svd_comp, return_all=False, cutoff=True):
         u, s, v = np.linalg.svd(data_mat, full_matrices=False)
         if cutoff:
@@ -2080,7 +1918,6 @@ class TAData:
         try:
             fit_obj.run_fit(queue=queue, **run_kwargs)
         except Exception:
-            # raise
             return write_empty_attributes()
 
         if fit_obj.error is not None:
@@ -2571,7 +2408,6 @@ class TATraceCollection():
         errors = {}
         if fname.endswith('txt'):
             matrix = []
-            # keys = []
             column_headers = []
             for key in trace_keys:
                 tr_info = [s for s in save_dict[trace_type]]
@@ -2603,13 +2439,9 @@ class TATraceCollection():
                 return errors
             header = head.split('\n')
             header[0] = trace_type + " Trace Collection"
-            # header.pop(2)
             header.pop(3)
             header[2] = "Collection start columns: "
-            # header[3] = "Y values columns: "
-            # column_headers = [h.strip() for h in header[-1].split(",")]
             header[-1] = ", ".join(column_headers)
-            # header.append("")
             # find maximum dimension of all traces
             dim = [np.shape(matrix[0])[0], 0]
             for i in range(np.shape(matrix)[0]):
@@ -2625,10 +2457,7 @@ class TATraceCollection():
                 d = np.shape(matrix[i])
                 mat[:d[0], j:j + d[1]] = matrix[i]
                 header[2] += str(j) + ", "
-                # header[3] += ",".join([str(j + k + 1) for k in range(1, d[1])])
-                # header[3] += ","
                 j += d[1]
-            # header[3] = header[3][:-1]
             header[2] = header[2][:-1]
             header = '\n'.join(header)
             with open(fname, 'w') as f:
@@ -2858,7 +2687,6 @@ class TATraceCollection():
                         self.traces[key]._xmode = 'wavelength'
                 else:
                     self.traces[key].type = 'kinetic'
-        # return fname
 
     def combine_trace_keys(self, member):
         def get_key_by_name(labels):
@@ -3111,8 +2939,6 @@ class TATrace(TAData):
                     raise
             if xdata is not None:
                 self.xdata = xdata
-#            else:
-#                traceback.print_stack(limit = 8)
             self._xmode = mode
             self.spec_unit = std_units[mode]
 
@@ -3249,8 +3075,6 @@ class TATrace(TAData):
             self.tr[key]['residual'] = fit_obj.residual
             self.tr[key]['fit_x'] = fit_obj.x
             self.tr[key]['fit_outliers'] = np.array(fit_obj.outliers)
-#            self.tr[key]['residual'] = ydata[valid] - curve
-#            self.tr[key]['fit_x'] = xdata[valid]
             if fit_obj.stderrors is None:
                 (self.tr[key]['fit_error_lower'],
                  self.tr[key]['fit_error_upper']) = None, None
@@ -3457,15 +3281,11 @@ class TATrace(TAData):
         if ylabel is None:
             ylabel = trace_obj.ylabel
         header += 'Y-Axis: ' + ylabel + '\n'
-        # header += '\n' + trace_obj.xlabel + ', '
         if save_fit:
             save_matrix = np.zeros(
                 (3*len(trace_keys) + 1, len(trace_obj.tr[trace_keys[0]]['y'])))
-            # save_matrix[0, :len(trace_obj.tr[trace_keys[0]]['fit_x'])] = (
-                # trace_obj.tr[trace_keys[0]]['fit_x'])
             save_matrix[0, :len(trace_obj.xdata)] = trace_obj.xdata
             for i, key in enumerate(trace_keys):
-                # header += key + ', '
                 header += "".join([key, ' x, ', key, ' y,'])
                 tr = trace_obj.tr[key]
                 save_matrix[3*i + 1, :len(tr['y'])] = tr['y']
@@ -3511,12 +3331,6 @@ class TATrace(TAData):
             'ydata': [trace_obj.tr[key]['y'] for key in trace_keys],
             'xunit': self.get_xunit(),
             'yunit': self.get_yunit()}
-            # 'parameters': {},
-            # 'misc': {'fit_subfunctions': [],
-            #          'fit_para_errors': [],
-            #          'fit_error_lower': [],
-            #          'fit_error_upper': [],
-            #          'fit_comps': []}}
         if save_fit:
             vars_to_save['parameters'] = {}
             if save_all_fit_attr:
@@ -3782,19 +3596,8 @@ class DataToPlot():
         ax.set_xlabel(self.xlabel)
         ax.set_ylabel(self.ylabel)
 
-    # def y_append(self, y):
-    #     if np.shape(y) == np.shape(self.y):
-    #         self.y = np.array([self.y, y])
-    #     else:
-    #         try:
-    #             if np.shape(y) == np.shape(self.y):
-    #                 self.y = np.array([self.y, y])
-    #         except Exception:
-    #             print('Error in method y_append of class DataToPlot.')
 
 # %%
-
-
 class TAParameterDependence(TAData):
     def __init__(self, *args, **kwargs):
         TAData.__init__(self, *args, **kwargs)
@@ -4106,10 +3909,6 @@ class StaticAbsData():
             self._active_key = self.abs_spectra.keys()
         except Exception:
             pass
-        # try:
-        #     self._active_key = list(self.abs_spectra.keys())[index]
-        # except Exception:
-        #     pass
         else:
             self.abs = self.abs_spectra[self._active_key][1]
 

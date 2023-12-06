@@ -13,3 +13,4 @@ from astras.ta.app import AppMain
 #               scrollable = True)
 app = AppMain(config_filepath='config')
 app.mainloop()
+ 

@@ -8,7 +8,6 @@ from ..common.helpers import GlobalSettings
 from ..common.dataobjects import TATraceCollection
 from ..common.tk.linefit import FitTracePage
 from ..common.tk.general import load_box, save_box
-from ..common.tk.figures import open_figure_options
 import matplotlib.font_manager
 import matplotlib.pyplot as plt
 import tkinter as tk
@@ -57,7 +56,6 @@ class AppMain(tk.Tk, tk.Toplevel):
         self.show_frame(FitTracePage)
         self.fr.trace_coll.traces = {}
         self.fr.trace_coll.active_members = []
-        # self.fr.fit_figure.set_callback(self.fig_callback)
         try:
             for ax, kwargs in self.settings['ticklabel_format'].items():
                 self.fr.fit_figure.set_ticklabel_format(
@@ -174,13 +172,18 @@ class AppMain(tk.Tk, tk.Toplevel):
     def setup_kinetic_fit(self):
         self.fr.set_mode('kinetic')
         self.setup_general_opts()
+        xunit = 'ps'
         for member in self.fr.trace_coll.active_members:
             xunit = self.fr.trace_coll.traces[member].get_xunit()
             time_unit_factors = self.fr.trace_coll.traces[
                 member].time_unit_factors
         self.fr.func_opts.t0_label.config(text="Time zero (" + xunit + ")")
         self.fr.fit_range_label.config(text="Fit range (" + xunit + ")")
-        if xunit in time_unit_factors.keys():
+        try:
+            cond = xunit in time_unit_factors.keys()
+        except:
+            cond = False
+        if cond:
             self.fr.func_opts.irf_opt_check.config(
                 text="IRF (" + time_unit_factors[xunit][1] + ")")
             self.fr.vars['irf_factor'] = 1e-3
@@ -190,9 +193,3 @@ class AppMain(tk.Tk, tk.Toplevel):
                                                    xunit + ")")
             self.fr.vars['irf_factor'] = 1.0
             self.fr.vars['irf_val'].set(0.1)
-
-    # def fig_callback(self, event):
-    #     if event.button == 3:
-    #         open_figure_options(
-    #             self.fr, self.fr.fit_figure, default_vals=self.settings,
-    #             controller=self.fr.controller)

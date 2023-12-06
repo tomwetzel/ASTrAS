@@ -4,20 +4,11 @@ Created on Mon Jun 17 12:46:47 2019
 
 @author: Simon Bittmann
 
-
-python 3.6
-
-required non-up-to-date package versions:
-scipy 1.3.0
-
-to do next:
-    constraints for kinetic models in global fit
+python 3.10
 
 longer term ideas:
-    different types of kinetic models in global fit
     wavelength dependent sigma values for global fit if feasible...
     wavelet analysis
-    global fit: wavelet analysis for residual, need good test data though
 
 commonly used abbreviations in variable and method names:
     ind(s) - index/indices
@@ -81,8 +72,6 @@ mpl.rcParams['font.family'] = 'serif'
 __all__ = ['AppMain', 'MainPage', 'TraceManager', 'AveragingOptionsWindow',
            'AveragingOptions', 'OutlierDisplay', 'AveragingManager',
            'ChirpCorrPage', 'ManualChirpWindow', 'DataInspector',
-           # 'KineticModelOptions',
-           # 'SpectralFitOptions', 'KineticFitOptions', 'FitTracePage',
            'GlobalFitPage', 'GlobalFitResults', 'TraceManagerWindow',
            'SVDAnalysis', 'CPMFit', 'DynamicLineShapeFit',
            'ModifyData', 'FitResultsDisplay']
@@ -393,8 +382,6 @@ class MainPage(tk.Frame):
         # variables
         trace_dict = self.get_trace_dict()
         traces = trace_dict['Kinetic']
-        # self.centroidLabel = ['Center of gravity']
-        # self.plot_centroid_in_map = False
         self.centroids = None
         self.plot_kwargs = {}
         self.entries = {}
@@ -419,7 +406,6 @@ class MainPage(tk.Frame):
         # Figures
         self.main_figure = self.controller.tk_mpl_figure_wrap(
             self,
-            # dim=settings['figure_std_size'],
             callbacks={'button_press_event':
                        self.main_plot_click_callback},
             plot_function=self.data_obj.plot_ta_map,
@@ -429,7 +415,6 @@ class MainPage(tk.Frame):
         self.main_figure.grid(row=0, column=0, padx=2, pady=2, sticky='wnse')
         self.trace_figure = self.controller.tk_mpl_figure_wrap(
             self,
-            # dim=settings['figure_std_size'],
             callbacks={'button_press_event':
                        self.trace_plot_click_callback},
             plot_function=traces.plot,
@@ -1003,7 +988,6 @@ class MainPage(tk.Frame):
                    self.trace_figure.axes[0],
                    self.controller.frames[FitTracePage].fit_figure.axes[0]):
             ax.cla()
-        # self.data_obj.clear()
         try:
             self.main_figure.cbar[0].remove()
         except Exception:
@@ -1246,8 +1230,6 @@ class MainPage(tk.Frame):
                     parent=self)
             else:
                 no_data_error()
-        # else:
-        #     self.data_obj.is_filtered = True
 
     def bin_pixel_callback(self, *args):
         if self.vars['pixel_binning'].get() < 1:
@@ -1255,8 +1237,6 @@ class MainPage(tk.Frame):
             self.data_obj.delA = self.data_obj.non_filt_delA
         else:
             self.bin_pixels()
-            # if self.data_obj.is_filtered:
-            #     self.gaussian_filter()
         self.frames['plot_color'].clim_callback([])
         self.update_main_plot()
 
@@ -1276,7 +1256,6 @@ class MainPage(tk.Frame):
             self.data_obj.reset_bin()
         self.frames['plot_color'].clim_callback([])
         self.update_main_plot()
-        # self.data_obj.is_filtered = False
 
     # traces, Integral & Centroid
     def _trace_type_callback(self, *args):
@@ -1425,8 +1404,6 @@ class MainPage(tk.Frame):
         self.data_obj.plot_data.write_properties(
             x=self.data_obj.spec_axis[self.data_obj.get_x_mode()][
                 self.data_obj.get_xlim_slice()],
-            # self.data_obj._lambda_lim_index[0]
-            # :self.data_obj._lambda_lim_index[1]],
             xlims=self.main_figure.get_xlim(),
             ylims=self.main_figure.get_ylim(),
             xlabel=self.main_figure.get_xlabel(),
@@ -1448,11 +1425,6 @@ class MainPage(tk.Frame):
                         xlim=self.main_figure.get_xlim(),
                         ylim=self.main_figure.get_ylim())
 
-    # deprecated, to be deleted
-    # def openSpecShiftWindow(self):
-    #     if self._load_check():
-    #         self._write_plot_data_for_ext_app()
-    #         SpectralShift(self, self.controller, self.data_obj.plot_data)
     def open_cpm_window(self):
         if self._load_check():
             self._write_plot_data_for_ext_app(write_color_kwargs=False)
@@ -1673,10 +1645,6 @@ class TraceManager(tk.Frame):
             axes_titles=title)
 
     def run_wavelet_analysis(self, *args):
-        # def plot_func(*args, **kwargs):
-        #     return self.data_obj.plot_ta_map(*args, dat=cwtmat, yvalues=freq,
-        #                            xvalues = tr.xdata[xrange[0]:xrange[1]],
-        #                            **kwargs)
         tr = self.traces[self.trace_mode]
         xrange = np.where(
                     np.logical_and(
@@ -2187,7 +2155,6 @@ class AveragingManager(tk.Toplevel):
     def __init__(self, parent, controller, all_timesteps_equal,
                  all_timesteps_same, data_obj, canvas_dim=None):
         tk.Toplevel.__init__(self, parent)
-
         self.all_timesteps_equal = all_timesteps_equal
         self.all_timesteps_same = all_timesteps_same
         self.data_obj = data_obj
@@ -2213,7 +2180,6 @@ class AveragingManager(tk.Toplevel):
             self, num_subplots=2, xlimits=xlimits, ylimits=ylimits,
             xlabel=self.controller.settings['xlabel_default'],
             ylabel=self.controller.settings['ylabel_default'],
-            # dim=canvas_dim,
             axes_titles=[None, "Scan Average"],
             callbacks={'button_press_event':
                        self.single_scan_plot_callback},
@@ -2586,7 +2552,6 @@ class ChirpCorrPage(CustomFrame):
         self.controller = controller
         self.data_obj = data_obj
         # misc. variables
-
         self.t0_found = False
         self.t0_fit_done = False
         self._init_outlier_arrays()
@@ -2596,11 +2561,8 @@ class ChirpCorrPage(CustomFrame):
                                  'mark_immune': self.immune_outlier}
         self.outlier_points = {}
         self.rect_select_mode = None
-
         self.frames = {}
         self.vars = {}
-#        self.frames['mainToolbar'] = tk.Frame(self)
-#        self.frames['t0Toolbar'] = tk.Frame(self)
         self.frames['commands'] = CustomFrame(self, dim=(3, 1))
         self.frames['find_t0'] = GroupBox(self.frames['commands'],
                                           text="Find time zeros",
@@ -2735,7 +2697,6 @@ class ChirpCorrPage(CustomFrame):
                 row=0, column=2, sticky=tk.E)
 
         # outlier sub panel
-
         tk.Label(self.frames['outliers'],
                  text='Auto finding thresholds:').grid(row=0, column=0,
                                                        sticky=tk.W)
@@ -2802,7 +2763,6 @@ class ChirpCorrPage(CustomFrame):
                 print(e)
 
     # time zero finding/loading
-
     def t0_method_callback(self, *args):
         opts = self.t0_dict[self.t0_method.get()]
         self.t0_algo.set(opts[0])
@@ -2910,7 +2870,7 @@ class ChirpCorrPage(CustomFrame):
             ydiff = np.max(np.abs(ylim))
         ylim = [ylim[0]-0.1*ydiff, ylim[1]+0.1*ydiff]
         xlim = [xlim[0]-0.1*xdiff, xlim[1]+0.1*xdiff]
-        self.t0_figure.set_axes_lim(x=xlim, y=ylim, update_canvas=True)
+        self.t0_figure.set_axes_lim(x=xlim, y=ylim[::-1], update_canvas=True)
         self.ta_map_figure.set_ylim(ylim, update_canvas=True)
 
     # time zero fit
@@ -3009,7 +2969,7 @@ class ChirpCorrPage(CustomFrame):
 
     def init_rect_select(self):
         self.rs = RectangleSelector(self.t0_figure.get_axes(),
-                                    self.line_select_callback, drawtype='box',
+                                    self.line_select_callback, #drawtype='box',
                                     useblit=False,
                                     button=[1], minspanx=1, minspany=1,
                                     spancoords='pixels', interactive=True)
@@ -3141,12 +3101,6 @@ class ChirpCorrPage(CustomFrame):
 
     def run_correction(self, controller):
         def start_thread(*args, **kwargs):
-            # def func(*args, **kwargs):
-            #     return self.data_obj.correct_chirp(
-            #         *args,
-            #         max_time_step=self.max_timestep.get()
-            #         if self.enable_max_timestep.get() else None,
-            #         **kwargs)
             self._corr_running = True
             self.queue = Queue()
             self.task = ThreadedTask(
@@ -3194,13 +3148,6 @@ class ChirpCorrPage(CustomFrame):
             self._toggle_widget_state_during_corr(case='end')
 
     def _post_correction_ops(self):
-        # print('cancelled', self._cancelled)
-        # if self._cancelled:
-        #     self.data_obj.delA = self.data_obj.raw_delA
-        #     self.data_obj.time_delays = self.data_obj.time_delays_raw
-        #     self.data_obj.chirp_corrected = False
-        #     ylim = None
-        # else:
         self.data_obj.non_filt_delA = self.data_obj.delA
         self.data_obj.chirp_corrected = True
         self.controller.frames[MainPage].vars['t0shift'].set(0)
@@ -3221,8 +3168,6 @@ class ChirpCorrPage(CustomFrame):
                 func=self.reset_correction(update_ui=False))
         except Exception as e:
             print(e)
-        # else:
-        #     print('reset')
 
     def reset_correction(self, update_ui=True):
         self.data_obj.delA = self.data_obj.raw_delA
@@ -3263,10 +3208,6 @@ class ChirpCorrPage(CustomFrame):
             self.ta_map_figure.plot(ylimits=mp.main_figure.get_ylim(),
                                     xlimits=mp.main_figure.get_xlim(),
                                     update_canvas=False)
-        # self.ta_map_figure.set_xlabel(mp.main_figure.get_xlabel(),
-        #                               update_canvas=False)
-        # self.ta_map_figure.set_ylabel(mp.main_figure.get_ylabel(),
-        #                               update_canvas=True)
         self.ta_map_figure.set_axes_label(x=mp.main_figure.get_xlabel(),
                                           y=mp.main_figure.get_ylabel())
         self.show_timestep_disp(visible=True)
@@ -3491,7 +3432,6 @@ class DataInspector(tk.Toplevel):
         # Figures
         self.figures['main'] = self.controller.tk_mpl_figure_wrap(
             self, toolbar=False,
-            # dim=settings['figure_std_size'],
             invert_yaxis=self.invert_yaxis_main,
             plot_function=lambda *args, **kwargs: self.data_obj.plot_ta_map(
                 *args, dat=dataset[0], xvalues=xvalues, yvalues=yvalues,
@@ -3538,7 +3478,6 @@ class DataInspector(tk.Toplevel):
         self.axes['y'].set_ylabel(self.zlabel)
         # tkinter widgets
         widget_frame = tk.Frame(self)
-        # disp_frame = tk.Frame(widget_frame)
         self.vars['xlower'] = tk.DoubleVar()
         self.vars['xupper'] = tk.DoubleVar()
         self.vars['ylower'] = tk.DoubleVar()
@@ -3581,8 +3520,6 @@ class DataInspector(tk.Toplevel):
                            variable=self.vars['transpose_y_plot'],
                            command=self.trans_y_callback).grid(
                                row=row + 1, column=1, columnspan=2, sticky='w')
-        # disp_frame.grid(row=0, column=0, columnspan=3, sticky='wnse',
-        #                padx=5, pady=5)
         widget_frame.grid(row=1, column=1, sticky='wnse', padx=5, pady=5)
         if self.xlim is None:
             self.xlim = self.figures['main'].axes[0].get_xlim()
@@ -3668,9 +3605,6 @@ class DataInspector(tk.Toplevel):
         self.axes['x'].set_xlabel(self.xlabel)
         self.axes['x'].set_ylabel(self.zlabel)
         self.plot_xy(self.xpoint, self.ypoint)
-
-    # def change_cursor(self, *args, cursor="wait"):
-    #     self.config(cursor=cursor)
 
     def idle(self, *args, **kwargs):
         return
@@ -3859,8 +3793,6 @@ class GlobalFitPage(tk.Frame):
                                sticky='nswe', padx=(0, 15), pady=(0, 10))
         tk.Label(self.option_frame, text='Reconstruction Options').grid(
             row=0, column=1)
-
-        #
         self.win_opt_frame.grid(
             row=1, column=0, columnspan=2, sticky='wens', pady=1, padx=1)
         tk.Label(self.win_opt_frame, text='Window').grid(
@@ -4487,7 +4419,6 @@ class GlobalFitPage(tk.Frame):
                         zorder=zord[i], color=cycle[i], **plot_kwargs)
 
     # page navigation
-
     def _leave_page(self):
         return True
 
@@ -4720,7 +4651,8 @@ class GlobalFitResults(tk.Toplevel):
         self.what_to_save = tk.StringVar(value='Spectra')
         tk.ttk.OptionMenu(self.save_frame, self.what_to_save,
                           'Spectra', 'Spectra', 'Fit Map',
-                          'Residual').grid(row=0, column=0)
+                          'Residual', 'Conc.', 'Res. FFT').grid(
+                              row=0, column=0)
 
         self.disp_results()
 
@@ -4811,7 +4743,9 @@ class GlobalFitResults(tk.Toplevel):
     def save_results(self):
         fnames = {'Fit Map': 'GA_fit',
                   'Residual': 'GA_residual',
-                  'Spectra': 'GA_spectra'}
+                  'Spectra': 'GA_spectra',
+                  'Conc.': 'GA_conc',
+                  'Res. FFT': 'GA_resid_fft'}
         file = save_box(fext='.mat',
                         filetypes=[('text files', '.txt'),
                                    ('Matlab files', '.mat')],
@@ -4837,6 +4771,17 @@ class GlobalFitResults(tk.Toplevel):
             elif self.what_to_save.get() == 'Residual':
                 self.parent.data_obj.save_data_matrix(
                     file, matrix=self.res, x=self.x, y=self.fit_obj.y)
+            elif re.search('conc', self.what_to_save.get(), re.I):
+                conc_traces = TATrace(xdata=self.fit_obj.y)
+                for i, conc in enumerate(self.fit_obj.ycomps):
+                    conc_traces.add_trace(np.array(conc),
+                                          self.das_figure.legends[0][i])
+                conc_traces.save(file)
+            elif re.search('fft', self.what_to_save.get(), re.I):
+                self.residual_fft(plot=False)
+                self.parent.data_obj.save_data_matrix(
+                    file, matrix=np.transpose(self.fft_map), x=self.x,
+                    y=self.fft_freq)
         self.lift()
 
     def residual_fft(self, plot=True):
@@ -5080,7 +5025,6 @@ class TraceManagerWindow(tk.Toplevel):
             callbacks={'button_press_event':
                        self.trace_plot_click_callback},
             plot_function=None,
-            # dim=settings['figure_std_size'],
             xlabels=dat['ylabel'],
             ylabels=dat['zlabel'],
             plot_type='line',
@@ -5149,8 +5093,6 @@ class SVDAnalysis(tk.Toplevel):
             self.frames['options'], dim=(3, 1), border=False)
         self.frames['commands'] = CustomFrame(
             self.frames['ui'], dim=(2, 3), border=True)
-        # self.frames['command_sub'] = CustomFrame(
-        #     self.frames['commands'], dim=(1, 2), border=True)
         self.frames['save'] = CustomFrame(
             self.frames['ui'], dim=(1, 4), border=True)
         # resizability
@@ -5194,7 +5136,6 @@ class SVDAnalysis(tk.Toplevel):
 
         self.left_svec_fig = self.controller.tk_mpl_figure_wrap(
             self,
-            # dim=settings['figure_std_size'],
             plot_type='line',
             plot_function=lambda *args, c='Left', **kwargs:
                 self.plot_svec(
@@ -5207,7 +5148,6 @@ class SVDAnalysis(tk.Toplevel):
 
         self.right_svec_fig = self.controller.tk_mpl_figure_wrap(
             self,
-            # dim=settings['figure_std_size'],
             plot_type='line',
             plot_function=lambda *args, c='Right', **kwargs:
             self.plot_svec(
@@ -5613,7 +5553,6 @@ class SVDAnalysis(tk.Toplevel):
     def plot_sval(self, *args, fig=None, ax=None, fill=0, marker='x',
                   reverse_z=False, color_order=None, color_cycle=None,
                   interpolate_colors=False, linestyle=None,
-                  # legend_kwargs=None,
                   transpose=False, **plot_kwargs):
         if fig is None:
             fig = plt.figure()
@@ -5682,9 +5621,7 @@ class SVDAnalysis(tk.Toplevel):
 
     def plot_red_data(self, *args, fig=None, ax=None, fill=0, reverse_z=False,
                       color_order=None, color_cycle=None,
-                      interpolate_colors=False,
-                      # legend_kwargs=None,
-                      **kwargs):
+                      interpolate_colors=False, **kwargs):
         if fig is None:
             fig = self.red_data_fig
         if ax is None:
@@ -5753,188 +5690,6 @@ class SVDAnalysis(tk.Toplevel):
         return lines
 
 
-# %% Deprecated
-# class SpectralShift(tk.Toplevel):
-#     def __init__(self, parent, controller, dat, dim=400, inputCentroid=False):
-#         tk.Toplevel.__init__(self, parent)
-#         self.title("Spectral Shift Tool")
-#         self.controller = controller
-#         move_toplevel_to_default(self, controller)
-#         self.plot_data = dat
-#         self.parent = parent
-#         self.vars = {}
-#         self.entries = {}
-#         self.selects = {}
-#         self.canvas = {}
-#         self.figures = {}
-#         self.axes = {}
-#         self.toolbars = {}
-#         self.plots = {}
-#         self.inputCentroid = inputCentroid
-#         self.t_range = None
-
-#         self.frames = {'commands': CustomFrame(self, dim=(2, 1))}
-#         self.frames['commandsShiftCurve'] = CustomFrame(self.frames['commands'],
-#                                                         dim=(6, 1), border=True)
-#         self.frames['commandsSpectralShift'] = CustomFrame(self.frames['commands'],
-#                                                            dim=(3, 1), border=True)
-
-#         for k, i in zip(('data', 'shift', 'result'), range(3)):
-#             self.frames[k + 'PlotToolbar'] = CustomFrame(self, dim=(1, 1))
-#             self.figures[k] = plt.figure()
-#             plt.close()
-#             self.figures[k].set_tight_layout(True)
-#             self.axes[k] = self.figures[k].add_subplot(111)
-#             self.axes[k].format_coord = lambda x, y: ""
-#             self.canvas[k] = FigureCanvasTkAgg(self.figures[k], self)
-#             self.canvas[k].get_tk_widget().config(width=dim, height=dim)
-#             self.toolbars[k] = NavigationToolbar2Tk(
-#                 self.canvas[k], self.frames[k + 'PlotToolbar'])
-#             self.toolbars[k].update()
-#             self.canvas[k].get_tk_widget().grid(row=0, column=i, sticky='wnse',
-#                                                 padx=5, pady=5)
-#             self.frames[k + 'PlotToolbar'].grid(row=1, column=i, sticky='wnse',
-#                                                 padx=5)
-
-#         self.canvas['result'].callbacks.connect(
-#             'button_press_event', self.resultCanvCallback)
-
-#         self.plots['data'] = self.plot_data.plot_2d(fig=self.figures['data'], ax=self.axes['data'],
-#                                                      canv=self.canvas['data'], **self.parent.plot_kwargs)
-#         self.canvas['data'].draw()
-
-#         tk.Label(self.frames['commandsShiftCurve'], text='time window:').grid(
-#             row=0, column=0, sticky=tk.W)
-#         self.vars['tlower'] = tk.DoubleVar(value=np.min(self.plot_data.y)
-#                                            if np.min(self.plot_data.y) > 0 else 0.0)
-#         self.vars['tupper'] = tk.DoubleVar(value=np.max(self.plot_data.y))
-#         for k, i in zip(('tlower', 'tupper'), (1, 2)):
-#             self.entries[k] = tk.Entry(self.frames['commandsShiftCurve'],
-#                                        textvariable=self.vars[k], width=6)
-#             self.entries[k].grid(row=0, column=i, sticky=tk.W)
-#             self.entries[k].bind('<Return>', self.showShiftCurve)
-
-#         tk.Label(self.frames['commandsShiftCurve'], text='Shift curve:').grid(row=0, column=3,
-#                                                                               sticky=tk.W)
-#         self.vars['shiftCurveMode'] = tk.StringVar(value='Centroid')
-#         self.selects['shiftCurveMode'] = tk.ttk.OptionMenu(self.frames['commandsShiftCurve'],
-#                                                            self.vars['shiftCurveMode'], self.vars['shiftCurveMode'].get(
-#         ),
-#             'Centroid', 'Maximum', 'Minimum', command=self.showShiftCurve)
-#         self.selects['shiftCurveMode'].grid(row=0, column=4, sticky=tk.W)
-
-#         ttk.Button(self.frames['commandsShiftCurve'], text='Smooth',
-#                    command=self.smoothShiftCurve).grid(row=0, column=5, sticky=tk.W)
-
-#         ttk.Button(self.frames['commandsSpectralShift'], text='Shift',
-#                    command=self.shiftSpectra).grid(row=0, column=0)
-#         ttk.Button(self.frames['commandsSpectralShift'], text='Save to app',
-#                    command=lambda *args: self.saveShift(*args, case='inapp')).grid(row=0, column=1)
-#         ttk.Button(self.frames['commandsSpectralShift'], text='Save to file',
-#                    command=lambda *args: self.saveShift(*args, case='file')).grid(row=0, column=2)
-
-#         self.frames['commandsShiftCurve'].grid(row=0, column=0,
-#                                                sticky='wnse', padx=1, pady=1)
-#         self.frames['commandsSpectralShift'].grid(row=0, column=1,
-#                                                   sticky='wnse', padx=1, pady=1)
-#         self.frames['commands'].grid(row=2, column=0, columnspan=3,
-#                                      sticky='wnse')
-
-#         if not self.inputCentroid:
-#             self.showShiftCurve()
-#         else:
-#             self.shiftCurve = self.inputCentroid
-#             self.plotShiftCurve()
-
-#     def saveShift(self, *args, case='inapp'):
-#         if case.lower() == 'inapp':
-#             self.data_obj.delA = self.shiftedMap
-#             self.data_obj.wavelengths = self.plot_data.x
-#             self.data_obj.spec_axis[self.data_obj.get_x_mode()] = self.plot_data.x
-#             self.data_obj._lambda_lim_index = [0, len(self.data_obj.wavelengths) - 1]
-#             self.parent.update_main_plot()
-#         elif case.lower() == 'file':
-#             self.data_obj.save_data_matrix(matrix=self.shiftedMap, x=self.plot_data.x,
-#                                   y=self.plot_data.y, fname='shiftedMap',
-#                                   header='Spectrally shifted data. Mode: ' +
-#                                   self.vars['shiftCurveMode'].get(),
-#                                   parent=self)
-
-#     def showShiftCurve(self, *args):
-#         self.t_range = [np.where(self.data_obj.time_delays >= self.vars['tlower'].get())[0][
-#             0 - int(self.data_obj.time_delays[-1] < self.data_obj.time_delays[0])],
-#             np.where(self.data_obj.time_delays <= self.vars['tupper'].get())[0][
-#             -1 + int(self.data_obj.time_delays[-1] < self.data_obj.time_delays[0])]]
-#         if self.vars['shiftCurveMode'].get() == 'Centroid':
-#             self.t_range = ([np.where(self.data_obj.time_delays >= 0)[0][0 - int(self.data_obj.time_delays[-1] < self.data_obj.time_delays[0])],
-#                             len(self.data_obj.time_delays)] if self.data_obj.time_delays[0] <= 0 else [0, len(self.data_obj.time_delays)])
-#             self.data_obj.calculate_centroid(self.data_obj._lambda_lim_index, t_range=self.t_range)
-#             self.shiftCurve = self.data_obj.centroid
-#             self.rawShiftCurve = self.data_obj.centroid.tr[None]['y']
-#         else:
-#             self.shiftCurve = TATrace()
-#             self.shiftCurve.xdata, y = self.data_obj.find_spec_maximum(self.data_obj._lambda_lim_index, t_range=self.t_range,
-#                                                             mode='max' if self.vars['shiftCurveMode'].get()
-#                                                             == 'Maximum' else 'min')
-#             self.shiftCurve.tr[None] = {}
-#             self.shiftCurve.tr[None]['y'] = y
-#         self.plotShiftCurve()
-
-#     def plotShiftCurve(self):
-#         self.axes['shift'].cla()
-#         self.axes['shift'].set_ylabel(self.axes['data'].get_ylabel())
-#         self.axes['shift'].set_xlabel(self.axes['data'].get_xlabel())
-#         self.axes['shift'].plot(self.shiftCurve.tr[None]
-#                                 ['y'], self.shiftCurve.xdata)
-#         self.axes['shift'].invert_yaxis()
-#         self.canvas['shift'].draw()
-
-#     def shiftSpectra(self):
-#         shiftedMap = self.data_obj.spectral_shift(self.shiftCurve.tr[None]['y'],
-#                                         spec=self.plot_data.x,
-#                                         td=self.shiftCurve.xdata,
-#                                         data_mat=self.plot_data.z[slice(*self.t_range), :])
-#         self.shiftedMap = []
-#         for z in self.plot_data.z:
-#             self.shiftedMap.append(z)
-#         self.shiftedMap = np.array(self.shiftedMap)
-#         self.shiftedMap[slice(*self.t_range), :] = shiftedMap
-#         self.updateShiftMap()
-
-#     def resultCanvCallback(self, event):
-#         if event.button == 3:
-#             self.controller.open_topfigure_wrap(self, plot_func=lambda *args, **kwargs: self.plotShiftedMap(
-#                 *args, **kwargs),
-#                 editable=True, controller=self,
-#                 clims=self.data_obj.color.clims,
-
-#                 #                            colorSettingsDict = self.controller.colorSettings,
-#                 color_obj=self.data_obj.color)
-
-#     def updateShiftMap(self):
-#         self.plots['result'] = self.plotShiftedMap(
-#             fig=self.figures['result'], ax=self.axes['result'],
-#             **self.data_obj.color.get_kwargs())
-#         self.canvas['result'].draw()
-
-#     def plotShiftedMap(self, *args, fig=None, ax=None, **kwargs):
-#         if fig is None:
-#             fig = plt.figure()
-#             plt.close()
-#             fig.set_tight_layout(True)
-#         if ax is None:
-#             ax = fig.add_subplot(111)
-#         if 'cmap' not in kwargs.keys():
-#             kwargs['cmap'] = self.plot_data.cmap
-#         ax.cla()
-#         img = pcolor(ax, self.plot_data.x, self.plot_data.y,
-#                      self.shiftedMap, **kwargs)
-#         ax.set_ylim(self.axes['data'].get_ylim())
-#         ax.set_ylabel(self.axes['data'].get_ylabel())
-#         ax.set_xlabel(self.axes['data'].get_xlabel())
-#         return img
-
-
 # %%
 class CPMFit(tk.Toplevel):
     def __init__(self, parent, controller, dat, data_obj, dim=None,
@@ -5954,12 +5709,6 @@ class CPMFit(tk.Toplevel):
                                'time zero': self.plot_t0,
                                'fit map': self.plot_fit_map,
                                't0 in map': self.plot_t0_map}
-
-        # Frames
-        # self.frames['mainToolbar'] = tk.Frame(self)
-        # self.frames['traceToolbar'] = tk.Frame(self)
-        # self.frames['fitToolbar'] = tk.Frame(self)
-
         self.widget_frame = CustomFrame(self, border=False, dim=(2, 1))
 
         self.fit_frame = GroupBox(
@@ -5988,9 +5737,6 @@ class CPMFit(tk.Toplevel):
         self.hermite_para_disp = CustomFrame(self.fit_para_display,
                                              border=True, dim=(5, 4),
                                              width=300)
-        # self.hermite_para_disp_blank = CustomFrame(
-        #     self.fit_para_display)
-
         # Figures
 
         self.main_figure = self.controller.tk_mpl_figure_wrap(
@@ -6012,7 +5758,6 @@ class CPMFit(tk.Toplevel):
             ylabels=dat.clabel,
             xlimits=dat.ylims,
             plot_type='linefit',
-            # fit_kwargs=settings['fit_kwargs'],
             callbacks={'button_press_event':
                        self.open_trace_figure})
 
@@ -6129,7 +5874,6 @@ class CPMFit(tk.Toplevel):
                 row=1, column=1, padx=2, pady=2, columnspan=2, sticky='we')
 
         # tzero subframe
-
         self.t0_auto_guess_opt = tk.IntVar(value=1)
         self.t0_auto_guess_opt_check = tk.ttk.Checkbutton(
             self.fit_opt_frame, variable=self.t0_auto_guess_opt,
@@ -6270,8 +6014,6 @@ class CPMFit(tk.Toplevel):
                                    padx=2, pady=2)
         self.hermite_para_disp.grid(row=0, column=0, sticky='wnse',
                                     padx=2, pady=2, columnspan=3)
-        # self.hermite_para_disp_blank.grid(row=0, column=0, sticky='wnse',
-        #                                        padx=2, pady=2)
         tk.Label(self.hermite_para_disp, text=self.sigma_lbl).grid(
             row=0, column=0, sticky=tk.W, columnspan=3)
         self.sigma_display = tk.Label(self.hermite_para_disp, text="     ")
@@ -6288,8 +6030,6 @@ class CPMFit(tk.Toplevel):
             self.poly_amp_display.append(
                 tk.Label(self.hermite_para_disp, text=" ", width=5))
             self.poly_amp_display[i].grid(row=3, column=i, sticky=tk.W)
-
-        # self.hermite_para_disp.tkraise()
 
         # save list frame
         self.savelist_frame.grid(row=1, column=1, columnspan=1,
@@ -6589,7 +6329,6 @@ class CPMFit(tk.Toplevel):
             ax = self.trace_figure.axes[0]
         self.traces.plot(self, *args, fig=fig, ax=ax,
                          active_traces=[self.show_fit], **kwargs)
-#        return None, None
 
     def fit_figure_callback(self, event):
         if self.fit_done and (event.button == 3 or event.dblclick):
@@ -6695,7 +6434,6 @@ class CPMFit(tk.Toplevel):
                 color=self.controller.settings['fit_color'])
             self.trace_figure.axes[0].legend(
                 ('time zeros found', 'outliers', 'fit for guess'))
-
         self.trace_figure.axes[0].set_xlim(self.main_figure.get_xlim())
         self.trace_figure.axes[0].set_ylim(self.main_figure.get_ylim()[::-1])
         self.trace_figure.axes[0].set_xlabel(self.main_figure.get_xlabel())
@@ -7143,10 +6881,6 @@ class DynamicLineShapeFit(tk.Toplevel):
         self.optmenus = {}
         self.checks = {}
 
-        # Frames
-        # self.frames['mainToolbar'] = tk.Frame(self)
-        # self.frames['traceToolbar'] = tk.Frame(self)
-
         # main figure
         self.main_figure = self.controller.tk_mpl_figure_wrap(
             self, dim=dim, plot_function=dat.plot_2d, xlabels=dat.xlabel,
@@ -7175,7 +6909,6 @@ class DynamicLineShapeFit(tk.Toplevel):
         # LS Fit frame
         self.fit_frame = CustomFrame(self, border=False)
         self.fit_frame.grid(row=3, column=0, sticky='wnse', pady=5, padx=5)
-        #
         self.win_opts = GroupBox(self.fit_frame, text="Window")
         self.win_opts.grid(
             row=0, column=0, columnspan=2, padx=2, pady=2, sticky='nwse')
@@ -7481,7 +7214,6 @@ class DynamicLineShapeFit(tk.Toplevel):
         self.status_lbl.grid(row=0, column=1, sticky='we', pady=10)
 
         self.fit_done = False
-        # self.auto_bounds_factor = 1e3
         self.fit_obj = None
         self.prev_para = None
         self.previous_inits = None
@@ -7489,12 +7221,8 @@ class DynamicLineShapeFit(tk.Toplevel):
         disable_list = [['open_para_fit', 'show_fit', 'show_paras',
                          'show_movie', 'next_fit', 'previous_fit',
                          'show_areas', 'open_area_fit'],
-                        ['show_fit_at'], [],
-                        # ['plotTraceVia']
-                        ]
-        self.widget_list = [self.buttons, self.entries, self.checks,
-                            # self.optmenus
-                            ]
+                        ['show_fit_at'], []]
+        self.widget_list = [self.buttons, self.entries, self.checks]
         for i in range(len(self.widget_list)):
             for k in disable_list[i]:
                 self.widget_list[i][k].config(state='disabled')
@@ -8025,9 +7753,7 @@ class DynamicLineShapeFit(tk.Toplevel):
     def plot_para_curve(self, j, tr_obj=None, fig=None, ax=None, fill=0,
                         plot_ci=True, reverse_z=False, transpose=False,
                         color_order=None, color_cycle=None,
-                        interpolate_colors=False,
-                        # legend_kwargs=None,
-                        **plot_kwargs):
+                        interpolate_colors=False, **plot_kwargs):
         if fig is None:
             fig = plt.figure()
             plt.close()
@@ -8157,7 +7883,6 @@ class DynamicLineShapeFit(tk.Toplevel):
     def plot_areas(self, j, fig=None, ax=None, fill=0, reverse_z=False,
                    color_order=None, color_cycle=None,
                    interpolate_colors=False, transpose=False,
-                   # legend_kwargs=None,
                    **plot_kwargs):
         if fig is None:
             fig = plt.figure()
@@ -8184,7 +7909,6 @@ class DynamicLineShapeFit(tk.Toplevel):
             win.fr.grid(sticky='wnse')
             win.fr.fit_figure.set_plot_kwargs_all(
                 fit_kwargs={"color": "black"})
-            # win.fr.frames['trace_select'].update_box()
             win.fr.auto_axis_limits()
             win.title("Dynamic Line Shape: Parameter Fit")
             center_toplevel(win, self)
@@ -8224,7 +7948,6 @@ class DynamicLineShapeFit(tk.Toplevel):
                         title='DLSA_' + self.fit_obj.model,
                         frame_labels=frame_labels,
                         plot_kwargs=plt_kw)
-        # mov.show_movie(update_canvas=False)
         mov.show_movie()
         mov.stop()
         mov.fr.opts.opt_panels['lines'].vars['fill_curve'].set(1)
@@ -8371,7 +8094,6 @@ class DynamicLineShapeFit(tk.Toplevel):
             for k, val in para.items():
                 if key[3:6] == k:
                     val[0].tr[key] = {'y': self.para_traces.tr[key]['y']}
-                    # val[0].ylabel = self.paraPlotDict[key].get_ylabel()
                     val[0].active_traces.append(key)
                     break
         path = filedialog.askdirectory()
@@ -8391,7 +8113,6 @@ class DynamicLineShapeFit(tk.Toplevel):
                 file, trace_key=[key], save_fit=self.para_traces.fit_done)
         else:
             return None
-# to be tested
 
     def para_fig_window_callback(self, event, numrows, plot_func,
                                  include_fit=False):
@@ -8616,342 +8337,3 @@ class ModifyData(tk.Toplevel):
             self.parent.update_main_plot()
         except Exception:
             raise
-
-
-# %%
-# class FitGuessWindow(tk.Toplevel):
-#     def __init__(self, parent, inputDict = None, controller = None,
-#                  bounds = False, title = None):
-#         tk.Toplevel.__init__(self, parent)
-#         self.parent = parent
-#         if controller is None:
-#             self.controller = parent
-#         if inputDict is None:
-#             self.dict = {'labelheaders': ['Trace','Component'],
-#                         'parameters':['amplitude','time','offset'],
-#                          'singularPara':['offset'],
-#                          'para_tracesanslation':{'offset': 'Offset', 'amplitude': 'Amplitude',
-#                                             'time': 'Time constant (ps)'},
-#                          'curves':{'500 nm': {'Exp 1':[0,1,4],'Exp 2':[2,3]}}}
-#         else:
-#             self.dict = inputDict
-#         row = 0
-#         self.flag = False
-#         self.valueDict = {}
-#         self.firstEntryColumn = 0
-#         self.entryWidth = 8
-#         self.frame = tk.Frame(self)
-#         self.placeWidgetsRecursive(self.dict['curves'], self.valueDict)
-#         for column,header in enumerate(self.dict['labelheaders']):
-#             tk.Label(self, text = header).grid(row = row, column = column,
-#                  sticky = tk.W, padx = 5)
-#         for col,para in enumerate(self.dict['parameters']):
-#             tk.Label(self, text = self.dict['para_tracesanslation'][para]).grid(row = row, column = column + col + 1,
-#                  sticky = tk.W, padx = 5)
-#         row = row + 1
-#         self.frame.grid(row = row, column = 0, columnspan = column + col + 2, sticky = 'wnse')
-#         row = row + 1
-#         self.button_frame = tk.Frame(self)
-
-#         ttk.Button(self.button_frame, text = "OK", command = self.okButtonCallback).grid(
-#                 row = 0, column = 0)
-#         ttk.Button(self.button_frame, text = "Cancel", command = self.destroy).grid(
-#                 row = 0, column = 1)
-#         self.button_frame.grid(row = row,
-#                   column = 0, columnspan = column + col + 1)
-
-
-#     def okButtonCallback(self):
-#         for key, val in self.valueDict.items():
-#             singularParas = {}
-#             self.dict['curves'][key] = self.getParameters(val, self.dict['curves'][key], singularParas)
-#             for k, v in singularParas.items():
-#                 self.dict['curves'][key][k] = v
-#         self.flag = True
-#         self.destroy()
-
-#     def getParameters(self, dct, writeDct, singularParas):
-#         writeDct = {}
-#         for key,val in dct.items():
-#             writeDct[key] = {}
-#             try:
-#                 val.keys()
-#             except Exception:
-#                 continue
-#             else:
-#                 flag = False
-#                 for k in val.keys():
-#                     if k in self.dict['singularPara']:
-#                         singularParas[k] = val[k].get()
-#                         flag = True
-#                     elif k in self.dict['parameters']:
-#                         writeDct[key][k] = val[k].get()
-#                         flag = True
-#                 if not flag:
-#                     writeDct[key] = self.getParameters(val, writeDct[key], singularParas)
-#         return writeDct
-
-
-#     def placeWidgetsRecursive(self, dct, writeDct, row = 1, column = 0):
-#         for key, val in dct.items():
-#             tk.Label(self.frame, text = key).grid(row = row, column = column,
-#                  sticky = tk.W, padx = 5)
-#             writeDct[key] = {}
-#             try:
-#                 val.keys()
-#             except Exception:
-#                 self.firstEntryColumn = column
-#                 for i, lb in enumerate(val):
-#                     try:
-#                         para = self.dict['parameters'][i]
-#                     except Exception: pass
-#                     else:
-#                         self.placeEntry(para, lb, writeDct[key], row = row, column = column + i + 1,
-#                                         sticky = tk.W, padx = 5)
-#                 row += 1
-#             else:
-#                 row, column = self.placeWidgetsRecursive(val, writeDct[key], row, column + 1)
-#         return row, column - 1
-
-
-#     def placeEntry(self, para, val, writeDct, **grid_kwargs):
-#         writeDct[para] = tk.DoubleVar(value = val)
-#         tk.Entry(self.frame, textvariable = writeDct[para], width = self.entryWidth).grid(
-#                 **grid_kwargs)
-
-
-# %%         Deprecated, to be removed
-# class ExpFitGuessWindow(tk.Toplevel, tk.Frame):
-#     def __init__(self, parent, controller, num_comp, paraNames, paraVals,
-#                  mode = 'enter', offset = True, bounds = False,
-#                  popup = True, headers = None, title = None, customShape = False,
-#                  timeZeroPara = False):
-#         if popup:
-#             tk.Toplevel.__init__(self, parent)
-#             move_toplevel_to_default(self, controller)
-#         else:
-#             tk.Frame.__init__(self, parent)
-#         if headers == None:
-#             self.headers = ["Parameter","Amplitude","Lifetime (" + self.data_obj.time_unit + ")"]
-#             if offset:
-#                 self.headers.append("Offset")
-#             if timeZeroPara:
-#                 self.headers.append("Time zero")
-#         else:
-#             self.headers = headers
-#         self.headerLabels = []
-#         self.bounds = bounds
-#         self.offset = offset
-#         self.timeZeroPara = timeZeroPara
-#         if title:
-#             self.title(title)
-#         if bounds:
-#             for header,i in zip(self.headers, (0,*range(1,2*(2 + int(offset) + int(timeZeroPara)),2))):
-#                 tk.Label(self, text = header).grid(row = 0, column = i, pady = 5, padx = 5, sticky = tk.W)
-#             for i in range(2 + int(offset)):
-#                 tk.Label(self, text = 'Lower').grid(row = 1, column = 2*i + 1,
-#                      pady = 5, padx = 5, sticky = tk.W)
-#                 tk.Label(self, text = 'Upper').grid(row = 1, column = 2*i + 2,
-#                      pady = 5, padx = 5, sticky = tk.W)
-#         else:
-#             for header,i in zip(self.headers, range(len(self.headers))):
-#                 self.headerLabels.append(tk.Label(self, text = header))
-#                 self.headerLabels[-1].grid(row = 0, column = i, pady = 5, padx = 5, sticky = tk.W)
-#         if mode == 'enter':
-#             self.entries = {}
-#             nrow = self.placeEntries(paraNames,paraVals, num_comp, offset, bounds)
-#             self.paraNames = paraNames
-#             self.paraVals = paraVals
-#             if popup:
-#                 if bounds:
-#                     self.title("Enter Parameter Bounds")
-#                 else:
-#                     self.title("Enter Guesses")
-#                 self.continueButton = ttk.Button(self, text = "Continue", command =
-#                        lambda: self.continueFit(num_comp, offset, bounds, customShape))
-#                 self.continueButton.grid(
-#                     row = nrow, column = 0, columnspan = (2 + int(offset) + int(
-#                             timeZeroPara))*(1+int(bounds)) + 1)
-#         else:
-#             self.placeLabels(paraNames, paraVals, num_comp, offset)
-#             if popup:
-#                 self.title("Fit Results")
-#         if popup:
-#             center_toplevel(self,controller)
-
-
-#     def updateHeaderLabels(self):
-#         for l in self.headerLabels:
-#             l.grid_forget()
-#         self.headerLabels = []
-#         iterator = (0,*range(1,2*(2 + int(self.offset)),2)) if self.bounds else range(3 + int(self.offset))
-#         for header, i in zip(self.headers, iterator):
-#             self.headerLabels.append(tk.Label(self, text = header))
-#             self.headerLabels[-1].grid(row = 0, column = i, pady = 5, padx = 5, sticky = tk.W)
-
-
-#     def placeEntries(self, names, vals, num_comp, offset, bounds):
-#         def placeForParameter(i, m):
-#             def placeEntry(k,l,key):
-#                 self.entries[key] = [tk.DoubleVar()]
-#                 try:
-#                     self.entries[key][0].set(vals[i][l])
-#                 except Exception: pass
-#                 self.entries[key].append(tk.Entry(self,
-#                     textvariable = self.entries[key][0], width = 10))
-#                 self.entries[key][1].grid(row = m, column = k,
-#                             padx = 5, pady = 5, sticky = tk.W)
-#             tk.Label(self, text = names[i]).grid(row = m, column = 0, padx = 5, sticky = tk.W)
-#             l = 0
-#             if bounds:
-#                 if offset:
-#                     placeEntry(5,-2-2*int(self.timeZeroPara), names[i] + "Offset" + "lower")
-#                     placeEntry(6,-1-2*int(self.timeZeroPara), names[i] + "Offset" + "upper")
-#                 if self.timeZeroPara:
-#                     placeEntry(7,-2, names[i] + "TimeZero" + "lower")
-#                     placeEntry(8,-1, names[i] + "TimeZero" + "upper")
-#                 for j in range(num_comp):
-#                     for k in (1,2):
-#                         placeEntry(2*k - 1,l,names[i] + "_Exp" + str(j) + "_" + self.headers[k] + "lower")
-#                         l = l + 1
-#                         placeEntry(2*k,l,names[i] + "_Exp" + str(j) + "_" + self.headers[k] + "upper")
-#                         l = l + 1
-#                     m = m + 1
-#             else:
-#                 if offset:
-#                     placeEntry(len(self.headers),-1-int(self.timeZeroPara), names[i] + "Offset")
-#                 if self.timeZeroPara:
-#                     placeEntry(len(self.headers),-1, names[i] + "TimeZero")
-#                 for j in range(num_comp):
-#                     for k in (1,2):
-#                         try:
-#                             placeEntry(k,l,names[i] + "_Exp" + str(j) + "_" + self.headers[k])
-#                             l = l + 1
-#                         except Exception: pass
-#                     m = m + 1
-#             return m
-
-#         later = []
-#         m = 2 if bounds else 1
-#         for i in range(len(names)):
-#             try:
-#                 np.double(names[i][0])
-#             except Exception:
-#                 later.append(i)
-#             else:
-#                 m = placeForParameter(i,m)
-#         for i in later:
-#             m = placeForParameter(i,m)
-#         return m
-
-#     def placeLabels(self, names, vals, num_comp, offset):
-#         def placeForParameter(i, m):
-#             tk.Label(self, text = names[i]).grid(row = m, column = 0, padx = 5, sticky = tk.W)
-#             l = 0
-#             if offset:
-#                 tk.Label(self, text = vals[i][-1]).grid(row = m, column = 3,
-#                      padx = 5, pady = 5, sticky = tk.W)
-#             for j in range(num_comp):
-#                 for k in (1,2):
-#                     tk.Label(self, text = vals[i][l]).grid(row = m, column = k,
-#                          padx = 5, pady = 5, sticky = tk.W)
-#                     l = l + 1
-#                 m = m + 1
-#             return m
-#         later = []
-#         m = 1
-#         for i in range(len(names)):
-#             try:
-#                 np.double(names[i][0])
-#             except Exception:
-#                 later.append(i)
-#             else:
-#                 m = placeForParameter(i,m)
-#         for i in later:
-#             m = placeForParameter(i,m)
-
-#     def continueFit(self, num_comp, offset, bounds, customShape):
-#         self.output = []
-#         if customShape:
-#             self.output = {}
-#             for k in self.entries.keys():
-#                 self.output[k] = self.entries[k][0].get()
-#         elif bounds:
-#             for name in self.paraNames:
-#                 out = []
-#                 for i in range(num_comp):
-#                     for k in (1,2):
-#                         out.append(self.entries[
-#                                 name + "_Exp" + str(i) + "_"
-#                                 + self.headers[k] + "lower"][0].get())
-#                         out.append(self.entries[
-#                                 name + "_Exp" + str(i) + "_"
-#                                 + self.headers[k] + "upper"][0].get())
-#                 if offset:
-#                     out.append(self.entries[name + "Offset" + "lower"][0].get())
-#                     out.append(self.entries[name + "Offset" + "upper"][0].get())
-#                 if self.timeZeroPara:
-#                     out.append(self.entries[name + "TimeZero" + "lower"][0].get())
-#                     out.append(self.entries[name + "TimeZero" + "upper"][0].get())
-#                 self.output.append(out)
-#         else:
-#             for name in self.paraNames:
-#                 out = []
-#                 for i in range(num_comp):
-#                     for k in (1,2):
-#                         try:
-#                             out.append(self.entries[
-#                                 name + "_Exp" + str(i) + "_" + self.headers[k]][0].get())
-#                         except Exception: pass
-#                 if offset:
-#                     out.append(self.entries[name + "Offset"][0].get())
-#                 self.output.append(out)
-#         self.destroy()
-
-
-# %%
-# class FitResultsDisplay(tk.Toplevel):
-#     def __init__(self, parent, entry_dict, controller=None, headers=[],
-#                  title="Fit Results"):
-#         tk.Toplevel.__init__(self, parent)
-#         if controller is not None:
-#             move_toplevel_to_default(self, controller)
-#         self.title(title)
-#         tk.Label(self, text=title).grid(row=0, column=0, pady=5)
-#         self.frame = tk.Frame(self)
-
-#         for i, header in enumerate(headers):
-#             tk.Label(self.frame, text=header).grid(row=0, column=i,
-#                                                    sticky=tk.W, padx=5)
-
-#         self.placeLabelsRecursive(entry_dict, row=1, column=0)
-
-#         self.frame.grid(row=1, column=0)
-#         ttk.Button(self, text="OK", command=self.destroy).grid(
-#             row=2, column=0)
-#         if controller is not None:
-#             center_toplevel(self, controller)
-
-#     def placeLabelsRecursive(self, entry_dict, row=1, column=0):
-#         for key, val in entry_dict.items():
-#             tk.Label(self.frame, text=key).grid(row=row, column=column,
-#                                                 sticky=tk.W, padx=5)
-#             try:
-#                 val.keys()
-#             except Exception:
-#                 for i, lb in enumerate(val):
-#                     tk.Label(self.frame, text=str(lb)).grid(
-#                         row=row, column=column + i + 1, sticky=tk.W, padx=5)
-#                 row += 1
-#             else:
-#                 row, column = self.placeLabelsRecursive(val, row, column + 1)
-#         return row, column - 1
-
-
-# %%
-# class GlobalSettingsWindow(tk.Toplevel):
-#     # work in progress, meant for interactive manipulation of the
-#     # global settings file. For now direct editing of the .txt is
-#     # required
-#     def __init__(self, parent, controller, update_function=None):
-#         return

@@ -18,10 +18,6 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
                                                NavigationToolbar2Tk)
 import matplotlib.animation as animation
 
-# import traceback
-
-# import canvasvg
-
 from ..helpers import GlobalSettings
 from ..dataobjects import TATrace
 from ..mpl import (
@@ -199,9 +195,7 @@ class TkMplFigure(tk.Frame):
         self.dim = dim
         self.show_toolbar = toolbar
         self.canvas_callbacks = callbacks
-
         self.init_figure()
-
         self.current_axes_no = 0
 
         if plot_function is None:
@@ -2072,9 +2066,8 @@ class FigureOptionFrame(tk.Frame):
     def adjust_contrast(self, *args):
         self.figure.set_img_contrast_all(*args)
 
+
 # %%
-
-
 class FigFrame(tk.Frame):
     def __init__(self, parent, fig_obj=None, controller=None, dim=None,
                  plot_type='2D', plotstyle='fast', editable=False, xvals=None,
@@ -2112,14 +2105,7 @@ class FigFrame(tk.Frame):
                      font=(header['font'],
                            header['fontsize'])).grid(
                                row=row, column=0, columnspan=3)
-            # self.headerLabel = tk.Label(self, text=header['text'],
-            #                             font=(header['font'],
-            #                                   header['fontsize']))
-            # self.headerLabel.grid(row=row, column=0, columnspan=3)
             row += 1
-        # else:
-        #     self.headerLabel = header
-        # figure object
         if self.editable:
             if canvas_callback is None:
                 cb = {'button_press_event':
@@ -2229,16 +2215,6 @@ class FigFrame(tk.Frame):
 
     def save_figure_obj(self, *args):
         self.figure.save_figure()
-        # file = save_box(title="Save Figure", fname="figure.pkl",
-        #                 fext=".pkl",
-        #                 filetypes=[("PKL", ".pkl"),("PNG", ".png")],
-        #                 parent=self)
-        # try:
-        #     file.name
-        # except Exception:
-        #     return
-        # else:
-        #     self.figure.save_figure(file.name)
 
 
 # %%
@@ -2451,7 +2427,6 @@ class AdvancedPlotOptions(tk.Toplevel):
         row = 0
 
         # grid
-
         self.frames['grid'] = GroupBox(
             self, text='Grid options', border=True, dim=(2, 4))
 
@@ -2618,7 +2593,6 @@ class AdvancedPlotOptions(tk.Toplevel):
 
         row += 1
         # legend
-
         self.frames['legend'] = GroupBox(
             self, text='Legend options', border=True, dim=(3, 1))
 
@@ -2636,7 +2610,6 @@ class AdvancedPlotOptions(tk.Toplevel):
                                    padx=5, pady=5)
 
         # axis labels
-
         self.frames['label_pos'] = GroupBox(self, text="Label Positions",
                                             border=True, dim=(4, 2))
         tk.ttk.Label(self.frames['label_pos'], text='x label:').grid(
@@ -3860,7 +3833,6 @@ class LinePlotEditor(AxesEditor):
                                   update_canvas=update_canvas)
 
     # redefining inherited function specifically for line plots
-
     def update_plot(self, *args):
         plot_kwargs = {'linestyle': self.vars['linestyle'].get(),
                        'linewidth': self.vars['linewidth'].get(),
@@ -3911,7 +3883,6 @@ class LinePlotEditor(AxesEditor):
 # %%
 class ToplevelFigure(tk.Toplevel):
     def __init__(self, parent, controller=None, window_title=None,
-                 # deleteReference=False,
                  **fig_frame_kwargs):
         tk.Toplevel.__init__(self, parent)
         if controller is not None:
@@ -3932,20 +3903,10 @@ class ToplevelFigure(tk.Toplevel):
             label="Save", command=self.fr.save_figure_obj)
 
         tk.Tk.config(self, menu=self.menubar)
-#
         if window_title:
             self.title(window_title)
-        # if deleteReference:
-        #     self.protocol("WM_DELETE_WINDOW", self._delete_window)
         if controller is not None:
             center_toplevel(self, controller)
-
-    # def _delete_window(self, *args):
-    #     try:
-    #         self.parent.topLevelReference = False
-    #     except Exception:
-    #         pass
-    #     self.destroy()
 
 
 # %%
@@ -3979,14 +3940,6 @@ class ColorMapEditor(tk.Frame):
         self.frames['limits'] = GroupBox(
             self.frames['main'], dim=(5, 2) if horizontal else(2, 5),
             text='Color limits')
-
-        # self.rows = ([0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2]
-        #              if horizontal else [
-        #                      0, 1, 2, 5, 0, 0, 3, 1, 1, 2, 2, 3, 4])
-        # self.columns = ([0, 0, 1, 2, 0, 2, 0, 2, 3, 4, 5, 1, 1]
-        #                 if horizontal else [
-        #                         0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0])
-        # self.widget_pos = {}
         if horizontal:
             self.widget_pos = {'cscheme': {'row': 0, 'column': 0},
                                'cmap_sym': {'row': 0, 'column': 1},
@@ -3999,18 +3952,6 @@ class ColorMapEditor(tk.Frame):
                                'clim_low': {'row': 1, 'column': 1},
                                'upper_lbl': {'row': 1, 'column': 2},
                                'clim_up': {'row': 1, 'column': 3}}
-            # rows = {'cscheme': 0, 'cmap_sym': 0,
-            #         'invert_color': 1, 'cmap_center_zero': 2,
-            #         'limits': 0, 'clim_sym': 0,
-            #         'auto_button': 0, 'lower_lbl': 1,
-            #         'clim_low': 1, 'upper_lbl': 1,
-            #         'clim_up': 1}
-            # columns = {'cscheme': 0, 'cmap_sym': 1,
-            #            'invert_color': 1, 'cmap_center_zero': 1,
-            #            'limits': 2, 'clim_sym': 0,
-            #            'auto_button': 4, 'lower_lbl': 0,
-            #            'clim_low': 1, 'upper_lbl': 2,
-            #            'clim_up': 3}
         else:
             self.widget_pos = {'cscheme': {'row': 1, 'column': 0},
                                'cmap_sym': {'row': 2, 'column': 0},
@@ -4023,21 +3964,6 @@ class ColorMapEditor(tk.Frame):
                                'clim_low': {'row': 1, 'column': 1},
                                'upper_lbl': {'row': 2, 'column': 0},
                                'clim_up': {'row': 2, 'column': 1}}
-        #     rows = {'cscheme': 1, 'cmap_sym': 2,
-        #             'invert_color': 3, 'cmap_center_zero': 4,
-        #             'limits': 5, 'clim_sym': 0,
-        #             'auto_button': 3, 'lower_lbl': 1,
-        #             'clim_low': 1, 'upper_lbl': 2,
-        #             'clim_up': 2}
-        #     columns = {'cscheme': 0, 'cmap_sym': 0,
-        #                'invert_color': 0, 'cmap_center_zero': 0,
-        #                'limits': 0, 'clim_sym': 0,
-        #                'auto_button': 0, 'lower_lbl': 0,
-        #                'clim_low': 1, 'upper_lbl': 0,
-        #                'clim_up': 1}
-        # for key in rows.keys():
-        #     self.widget_pos[key] = {'row': rows[key],
-        #                             'column': columns[key]}
         if settings_dict is None:
             c_obj = self.figure.color_obj[plot_index]
             self.vars['lower_clim'] = tk.DoubleVar(value=c_obj.clims[0])
@@ -4074,7 +4000,6 @@ class ColorMapEditor(tk.Frame):
             command=self.change_color_scheme)
         self.optmenus['cscheme'].config(width=12)
         self.optmenus['cscheme'].grid(
-            # row=self.rows[1], column=self.columns[1],
             **self.widget_pos['cscheme'],
             sticky=tk.E,
             rowspan=2 if horizontal else 1)
@@ -4082,7 +4007,6 @@ class ColorMapEditor(tk.Frame):
             self.frames['main'], text="symmetric map",
             variable=self.vars['cmap_sym'], command=self.change_color_scheme)
         self.widgets['cmap_sym'].grid(
-            # row=self.rows[2], column=self.columns[2],
             **self.widget_pos['cmap_sym'],
             sticky=tk.W)
 
@@ -4091,7 +4015,6 @@ class ColorMapEditor(tk.Frame):
             variable=self.vars['invert_color'],
             command=self.change_color_scheme)
         self.widgets['invert_color'].grid(
-            # row=self.rows[11], column=self.columns[11],
             **self.widget_pos['invert_color'],
             sticky=tk.W)
         self.widgets['cmap_center_zero'] = tk.ttk.Checkbutton(
@@ -4099,12 +4022,10 @@ class ColorMapEditor(tk.Frame):
             variable=self.vars['cmap_center_zero'],
             command=self.center_zero_callback)
         self.widgets['cmap_center_zero'].grid(
-            # row=self.rows[12], column=self.columns[12],
             **self.widget_pos['cmap_center_zero'],
             sticky='w')
 
         self.frames['limits'].grid(
-            # row=self.rows[3], column=self.columns[3],
             **self.widget_pos['limits'],
             rowspan=3 if horizontal else 1, sticky='nswe', pady=5, padx=5)
 
@@ -4112,7 +4033,6 @@ class ColorMapEditor(tk.Frame):
             self.frames['limits'], text='symmetric limits',
             variable=self.vars['clim_sym'], command=self.clim_callback)
         self.widgets['clim_sym'].grid(
-            # row=self.rows[5], column=self.columns[5],
             **self.widget_pos['clim_sym'],
             columnspan=3,
             sticky='w')
@@ -4125,21 +4045,18 @@ class ColorMapEditor(tk.Frame):
                 self.frames['limits'], text="auto",
                 command=auto_callback)
             self.widgets['auto_button'].grid(
-                    # row=self.rows[6], column=self.columns[6],
                     **self.widget_pos['auto_button'],
                     sticky=tk.W+tk.E,
                     padx=5, pady=2, rowspan=2,
                     columnspan=1 if horizontal else 2)
         tk.Label(self.frames['limits'], text="lower:").grid(
             **self.widget_pos['lower_lbl'],
-            # row=self.rows[7], column=self.columns[7],
             sticky=tk.E if horizontal else tk.W)
         self.entries['clim_low'] = tk.ttk.Entry(
             self.frames['limits'], textvariable=self.vars['lower_clim'],
             width=8)
         self.entries['clim_low'].grid(
             **self.widget_pos['clim_low'],
-            # row=self.rows[8], column=self.columns[8],
             ipady=1, pady=2,
             sticky=tk.E if horizontal else tk.W, padx=5)
         self.entries['clim_low'].bind(
@@ -4147,14 +4064,12 @@ class ColorMapEditor(tk.Frame):
 
         tk.Label(self.frames['limits'], text="upper:").grid(
             **self.widget_pos['upper_lbl'],
-            # row=self.rows[9], column=self.columns[9],
             sticky=tk.E if horizontal else tk.W)
         self.entries['clim_up'] = tk.ttk.Entry(
             self.frames['limits'], textvariable=self.vars['upper_clim'],
             width=8)
         self.entries['clim_up'].grid(
             **self.widget_pos['clim_up'],
-            # row=self.rows[10], column=self.columns[10],
             ipady=1, pady=2,
             sticky=tk.E if horizontal else tk.W, padx=5)
         self.entries['clim_up'].bind(
@@ -4551,19 +4466,16 @@ class PlotMovie(ToplevelFigure):
                     x, y = get_fit(i, self.movie_iterable[0], args)
                     lines[j].set_data(x, y)
                     j += 1
-
             if fill:
                 for i in range(self.num_lines):
                     x, y = get_data(i, self.movie_iterable[0], args)
                     ax.fill_between(x, y, alpha=fill[i],
                                     color=lines[i].get_color())
-
             if self.frame_labels is not None:
                 self.text = ax.text(*self.frame_label_coord,
                                     self.frame_labels[0],
                                     transform=ax.transAxes,
                                     **self.frame_label_kwargs)
-
             return lines
 
         def ani_fill(i):
@@ -4649,10 +4561,8 @@ class PlotMovie(ToplevelFigure):
     def replay(self, *args):
         try:
             self.ani.pause()
-            # self.ani.event_source.stop()
             self.frame_counter = 0
             self.ani.resume()
-            # self.fr.figure.plot()
         except Exception:
             pass
 
@@ -4666,14 +4576,12 @@ class PlotMovie(ToplevelFigure):
     def stop(self, *args):
         try:
             self.ani.pause()
-            # self.ani.event_source.stop()
         except Exception:
             pass
 
     def contin(self):
         try:
             self.ani.resume()
-            # self.ani.event_source.start()
         except Exception:
             pass
 

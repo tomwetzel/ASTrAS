@@ -8,6 +8,7 @@ B) TA app:
 	2) Loading custom kinetic models from text file. Via method of class FitModels
 	3) Simultaneous fit of multiple traces using one model (One species per trace)
 	4) Edit config file via App instead of txt file
+	5) parameter constraints for parameters
 
 
 

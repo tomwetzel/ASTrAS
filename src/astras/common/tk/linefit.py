@@ -289,9 +289,8 @@ class FitParaOpts(tk.Frame):
     def _curve_select_callback(self, e):
         self.frames[self.curve.get()].tkraise()
 
+
 # %%
-
-
 class FitParaEntryWindowLmfit(tk.Toplevel):
     def __init__(self, parent, *args, controller=None, mode='enter',
                  case='guesses', **kwargs):
@@ -403,8 +402,6 @@ class FitParaEntryLmfit(tk.Frame):
             self.setup_table(params=params, input_values=input_values,
                              para_names=para_names, headers=headers,
                              grid_kwargs=grid_kwargs)
-
-#        self.table_frame.grid(sticky = 'wnse')
         self.canvas.grid(sticky='wnse', row=0, column=0, padx=10, pady=10)
 
     def _config_canvas(self, e):
@@ -728,7 +725,6 @@ class FitResultsDisplayLmfit(ttk.Treeview):
         self["columns"] = list(col_dct.keys())[1:]
         for key, val in col_dct.items():
             self.heading(key, **val["heading"])
-#            if not key in self["columns"]:
             self.column(key, **val["column"])
         self.column_dict = col_dct
 
@@ -1380,17 +1376,11 @@ class KineticFitOptions(CustomFrame):
 # %%
 class FitTracePage(tk.Frame):
     def __init__(self, parent, controller=None,
-                 # xunit=None,
                  main_page=None,
                  xlabel="time delay (ps)", figure_settings=None,
                  ylabel="$\Delta$ Abs. (mOD)", mode='kinetic',
-                 trace_obj=None,
-                 # figure_dim=None,
-                 **kwargs):
+                 trace_obj=None, **kwargs):
         tk.Frame.__init__(self, parent)
-
-        # self.defaultInits = [10, 1, 5]
-        # self.autoBoundFactor = 1e3
         try:
             xunit = re.findall(r"(?<=\().+(?=\))", xlabel)[0]
         except IndexError:
@@ -1418,9 +1408,7 @@ class FitTracePage(tk.Frame):
         self.bounds = {}
         self.prev_inits = {}
         self.ind = [0]
-        # self.traceSelectionItems = []
         self.baseline_subtract_dict = {}
-
         self.controller = controller
         self.frames = {}
         self.checks = {}
@@ -1492,14 +1480,12 @@ class FitTracePage(tk.Frame):
         self.xupper_entry.bind('<Return>', self.set_axlim)
 
         # Fit function specific frames:
-
         self.frames['spec_fit_opts'].grid(
             row=2, rowspan=2, column=0, sticky='wnse')
         self.frames['kin_fit_opts'].grid(
             row=2, rowspan=2, column=0, sticky='wnse')
 
         # algorithm options, running and saving
-
         self.frames['algo_options'].grid(row=4, column=0, sticky='nswe')
 
         tk.Label(self.frames['algo_options'],
@@ -1673,7 +1659,6 @@ class FitTracePage(tk.Frame):
         self.success = {}
 
         # trace selection
-
         self.frames['trace_select'].grid(row=0, column=4, sticky='wne', padx=5)
         try:
             self.frames['trace_select'].update_box()
@@ -1712,7 +1697,6 @@ class FitTracePage(tk.Frame):
         self.mode = mode
 
     # UI Callbacks
-
     def plot_comps_check_callback(self, *args):
         self.update_plot()
 
@@ -1798,7 +1782,6 @@ class FitTracePage(tk.Frame):
                                plot_type='linefit'
                                if self.fit_done else 'line',
                                editable=True, fig_obj=self.fit_figure,
-                               # color_obj=data.color,
                                controller=self.controller,
                                **self.figure_settings)
             elif event.button == 3:
@@ -1823,7 +1806,6 @@ class FitTracePage(tk.Frame):
             self.update_init_table()
 
     # guesses and bounds inputs
-
     def update_init_table(self, *args, show=True):
         curve_labels, curve_label_dict, inits = get_trace_fit_guess_input(
             self.trace_coll, guesses_input=self.prev_inits)
@@ -1878,7 +1860,6 @@ class FitTracePage(tk.Frame):
         return self.bounds
 
     # running fit
-
     def fit_traces(self):
         def start_thread(*args, **kwargs):
             self.task = ThreadedTask(self._fit_task, *args,
@@ -1923,10 +1904,7 @@ class FitTracePage(tk.Frame):
                 upper = len(trace.xdata) - 1
             self.range_ind[key] = [lower, upper]
         # run fit thread
-        # try:
         start_thread(guesses=guesses, bounds=bounds)
-        # except Exception:
-        #     traceback.print_exc(limit=-8)
 
     def _fit_task(self, guesses=None, bounds=None):
         fit_para = {}
@@ -2105,7 +2083,6 @@ class FitTracePage(tk.Frame):
         self.result_table.setup_columns(col_dct=col_dct)
 
     # page Navigation functions, only work in conjunction with TA app
-
     def _leave_page(self):
         mp = self._main_page
         try:
@@ -2205,25 +2182,6 @@ class KineticModelOptions(CustomFrame):
         self.output = None
         if input_vars_dict is None:
             input_vars_dict = {}
-        # self.fit_model_translate = {'AB|AC': 'branch1',
-        #                             'ABC|ABD': 'branch2',
-        #                             'ABD|ACD': 'branch3',
-        #                             'ABCE|BDE': 'branch4',
-        #                             'ABC|AC': 'branch5',
-        #                             'ABCD|ABCE': 'branch6',
-        #                             'ABC|D': 'branch7'}
-
-        # self._model_dict = {'Sequential': {
-        #     'Chain': {'AB': 2, 'ABC': 3, 'ABCD': 4, 'ABCDE': 5},
-        #     'Branched Chain': {'AB|AC': 4, 'ABC|AC': 4,
-        #                         'ABC|ABD': 5,
-        #                         'ABD|ACD': 5, 'ABCE|BDE': 6,
-        #                         'ABCD|ABCE': 6,
-        #                         'ABC|D': 4}},
-        #     'Parallel': {" ": {}}}
-        # for i in range(1, max_comp + 1):
-        #     self._model_dict['Parallel'][" "][str(i) + " Comp."] = i
-            # self.fit_model_translate[str(i) + " Comp."] = 'parallel'
         self._models_categorized = {'Sequential': {'Chain': [],
                                                    'Branched Chain': []},
                                     'Parallel': {" ": []}}
@@ -2242,16 +2200,6 @@ class KineticModelOptions(CustomFrame):
 
         if model_classes is None:
             model_classes = list(self._models_categorized.keys())
-        # translating to models contained in class FitModels. Will need more
-        # complex method here when branched options are added
-        # self.fit_model_numbers = {}
-        # for i, key in enumerate(list(self.fit_models.func_dict.keys())):
-        #     self.fit_model_numbers[key] = i + 1
-        # fit_model_translate_reverse = {'chain': ['AB', 'ABC', 'ABCD', 'ABCDE']}
-        # for key, val in fit_model_translate_reverse.items():
-        #     for v in val:
-        #         self.fit_model_translate[v] = key
-
         # default or input values
         vars_dict = {'class': 'Sequential', 'type': 'Chain',
                      'model': 'ABC', 'inf': 1,
@@ -2329,8 +2277,6 @@ class KineticModelOptions(CustomFrame):
     def get_output(self):
         num_comp = self.fit_models.model_dict[self.model.get()][
             'number_of_decays']
-        # num_comp = self._model_dict[
-        #     self.model_class.get()][self.model_type.get()][self.model.get()]
         vars_dict = {'class': self.model_class.get(),
                      'type': self.model_type.get(),
                      'model': self.model.get(),
@@ -2363,14 +2309,6 @@ class KineticModelOptions(CustomFrame):
             else:
                 model_name += '+'.join([c[0] for c in selected_comps])
         # write model string for fit object
-        # fit_object_str = str(num_comp)
-        # if self.inf_comp.get():
-        #     fit_object_str += "inf" + fit_object_str
-        # fit_object_str += "model" + str(
-        #     self.fit_model_numbers[
-        #         self.fit_model_translate[
-        #             self.model.get()]]) + "select"
-        # fit_object_str += "+".join([str(c[1]) for c in selected_comps])
         fit_object_str = self.fit_models.write_model_string(
             self.model.get(), num_comp=num_comp, inf_comp=self.inf_comp.get(),
             selected_comps=selected_comps)
@@ -2384,12 +2322,6 @@ class KineticModelOptions(CustomFrame):
                 label=t, command=lambda ty=t: self.model_type.set(ty))
         self.model_type.set(
             list(self._models_categorized[self.model_class.get()].keys())[0])
-        # self.modeltype_select['menu'].delete(0, 'end')
-        # for t in self._model_dict[self.model_class.get()].keys():
-        #     self.modeltype_select['menu'].add_command(
-        #         label=t, command=lambda ty=t: self.model_type.set(ty))
-        # self.model_type.set(
-        #     list(self._model_dict[self.model_class.get()].keys())[0])
 
     def model_type_callback(self, *args):
         self.model_select['menu'].delete(0, 'end')
@@ -2399,13 +2331,6 @@ class KineticModelOptions(CustomFrame):
         for model in models:
             self.model_select['menu'].add_command(
                 label=model, command=lambda m=model: self.model.set(m))
-        # self.model_select['menu'].delete(0, 'end')
-        # models = [m for m in self._model_dict[
-        #     self.model_class.get()][self.model_type.get()].keys()]
-        # self.model.set(models[0])
-        # for model in models:
-        #     self.model_select['menu'].add_command(
-        #         label=model, command=lambda m=model: self.model.set(m))
 
     def update_components(self, *args):
         curr_keys = list(self.components.keys())
@@ -2418,8 +2343,8 @@ class KineticModelOptions(CustomFrame):
         if re.search('para', self.model_class.get(), re.I):
             comps = ["All"]
         else:
-            comps = [char for char in self.model.get(
-            ) if re.search('[A-Za-z]', char)]
+            comps = [char for char in self.model.get()
+                     if re.search('[A-Za-z]', char)]
             comps.sort()
         r = 0
         col = 0
@@ -2441,245 +2366,12 @@ class KineticModelOptions(CustomFrame):
         self.update_model_disp()
         self.callback()
 
-    # def select_all_comp(self, *args):
-    #     for var in self.components.values():
-    #         var.set(self.select_all.get())
-
     def update_model_disp(self, *args):
         lbl = self.fit_models.model_dict[
             self.model.get()]['mechanism']
-        # lbl = self.fit_models.model_dict[self.fit_model_translate[
-        #     self.model.get()]]['mechanism']
         lbl = ";\n".join([lb.strip() for lb in lbl.split(";")])
         self.model_display.config(text=lbl)
 
-
-# class KineticModelOptions(CustomFrame):
-#     def __init__(self, parent, fit_obj=None, max_comp=8,
-#                  model_classes=None, dim=None,
-#                  input_vars_dict=None, **frame_kwargs):
-#         if dim is None:
-#             dim = (2, 2)
-#         CustomFrame.__init__(self, parent, dim=dim, **frame_kwargs)
-#         self.fit_models = FitModels()
-#         self.fit_model_numbers = {}
-#         self.fit_obj = fit_obj
-#         self.output = None
-#         if input_vars_dict is None:
-#             input_vars_dict = {}
-#         self.fit_model_translate = {'AB|AC': 'branch1',
-#                                     'ABC|ABD': 'branch2',
-#                                     'ABD|ACD': 'branch3',
-#                                     'ABCE|BDE': 'branch4',
-#                                     'ABC|AC': 'branch5',
-#                                     'ABCD|ABCE': 'branch6',
-#                                     'ABC|D': 'branch7'}
-
-#         self._model_dict = {'Sequential': {
-#             'Chain': {'AB': 2, 'ABC': 3, 'ABCD': 4, 'ABCDE': 5},
-#             'Branched Chain': {'AB|AC': 4, 'ABC|AC': 4,
-#                                'ABC|ABD': 5,
-#                                'ABD|ACD': 5, 'ABCE|BDE': 6,
-#                                'ABCD|ABCE': 6,
-#                                'ABC|D': 4}},
-#             'Parallel': {" ": {}}}
-#         for i in range(1, max_comp + 1):
-#             self._model_dict['Parallel'][" "][str(i) + " Comp."] = i
-#             self.fit_model_translate[str(i) + " Comp."] = 'parallel'
-#         if model_classes is None:
-#             model_classes = list(self._model_dict.keys())
-#         # translating to models contained in class FitModels. Will need more
-#         # complex method here when branched options are added
-
-#         for i, key in enumerate(list(self.fit_models.func_dict.keys())):
-#             self.fit_model_numbers[key] = i + 1
-
-#         fit_model_translate_reverse = {'chain': ['AB', 'ABC', 'ABCD', 'ABCDE']}
-#         for key, val in fit_model_translate_reverse.items():
-#             for v in val:
-#                 self.fit_model_translate[v] = key
-
-#         # model options
-#         vars_dict = {'class': 'Sequential', 'type': 'Chain',
-#                      'model': 'ABC', 'inf': 1,
-#                      'comps': {}}
-#         for key, val in input_vars_dict.items():
-#             vars_dict[key] = val
-#         self.model_class = tk.StringVar(value=vars_dict['class'])
-#         self.model_type = tk.StringVar(value=vars_dict['type'])
-#         self.model = tk.StringVar(value=vars_dict['model'])
-#         self.inf_comp = tk.IntVar(value=vars_dict['inf'])
-
-#         self.model_select_frame = GroupBox(self, dim=(2, 4),
-#                                            text="Select Model")
-#         tk.ttk.OptionMenu(self.model_select_frame,
-#                           self.model_class,
-#                           model_classes[0],
-#                           *model_classes).grid(row=0, column=1, sticky='w')
-
-#         self.modeltype_select = tk.ttk.OptionMenu(
-#             self.model_select_frame, self.model_type, self.model_type.get(),
-#             *self._model_dict[self.model_class.get()].keys())
-
-#         self.model_select = tk.ttk.OptionMenu(
-#             self.model_select_frame, self.model, self.model.get(),
-#             *self._model_dict[
-#                 self.model_class.get()][
-#                     self.model_type.get()].keys())
-
-#         tk.ttk.Checkbutton(
-#             self.model_select_frame,
-#             variable=self.inf_comp,
-#             text="Infinite Component",
-#             command=self.inf_comp_callback).grid(
-#                 row=3, column=0, columnspan=2, sticky='w')
-#         tk.ttk.Label(self.model_select_frame, text="Class:").grid(
-#             row=0, column=0, sticky='w')
-#         tk.ttk.Label(self.model_select_frame, text="Type:").grid(
-#             row=1, column=0, sticky='w')
-#         self.modeltype_select.grid(row=1, column=1, sticky='w')
-#         tk.ttk.Label(self.model_select_frame, text="Model:").grid(
-#             row=2, column=0, sticky='w')
-#         self.model_select.grid(row=2, column=1, sticky='w')
-
-#         self.model_select_frame.grid(row=0, column=0, sticky='wnse',
-#                                      padx=5, pady=5)
-
-#         self.model_display_frame = CustomFrame(self, dim=(1, 1), height=100)
-#         self.model_display = tk.ttk.Label(self.model_display_frame)
-#         self.model_display.grid(sticky='wnse')
-
-#         self.model_display_frame.grid(row=1, column=0, padx=5, pady=5)
-
-#         self.comp_select_frame = GroupBox(self, text="Select Comp.")
-#         self.components = {}
-#         self.comp_checks = {}
-#         self.comp_list = tk.Frame(self.comp_select_frame)
-#         self.comp_list.grid(sticky='wnse')
-#         self.update_components()
-#         for key, val in vars_dict['comps'].items():
-#             self.components[key].set(val)
-
-#         self.comp_select_frame.grid(row=0, column=1, rowspan=2, sticky='wnse',
-#                                     padx=5, pady=5)
-#         self.model_class.trace('w', self.model_class_callback)
-#         self.model_type.trace('w', self.model_type_callback)
-#         self.model.trace('w', self.update_components)
-
-#     def callback(*args, **kwargs):
-#         # for overwriting
-#         return
-
-#     def inf_comp_callback(self, *args):
-#         self.callback()
-
-#     def get_output(self):
-#         num_comp = self._model_dict[
-#             self.model_class.get()][self.model_type.get()][self.model.get()]
-#         vars_dict = {'class': self.model_class.get(),
-#                      'type': self.model_type.get(),
-#                      'model': self.model.get(),
-#                      'inf': self.inf_comp.get(),
-#                      'comps': {}}
-#         # read selected components
-#         if re.search("paral", self.model_class.get(), re.I):
-#             selected_comps = [(str(i + 1), i + 1) for i in range(num_comp)]
-#             for c in self.components.keys():
-#                 vars_dict['comps'][c] = self.components[c].get()
-#         else:
-#             selected_comps = []
-#             for i, c in enumerate(self.components.keys()):
-#                 vars_dict['comps'][c] = self.components[c].get()
-#                 if vars_dict['comps'][c]:
-#                     selected_comps.append((c, i + 1))
-#         if len(selected_comps) == 0:
-#             self.output = None
-#             return self.output
-#         # write model name
-#         model_name = ' '.join([self.model_class.get(), self.model_type.get(),
-#                                self.model.get() + ':'])
-#         if len(selected_comps) == 1:
-#             model_name += ' Comp. ' + selected_comps[0][0]
-#         else:
-#             model_name += " Sum of "
-#             if len(list(self.components.keys())) == len(selected_comps) - 1:
-#                 model_name += '-'.join([selected_comps[0]
-#                                        [0], selected_comps[-1][0]])
-#             else:
-#                 model_name += '+'.join([c[0] for c in selected_comps])
-#         # write model string for fit object
-#         fit_object_str = str(num_comp)
-#         if self.inf_comp.get():
-#             fit_object_str += "inf" + fit_object_str
-#         fit_object_str += "model" + str(
-#             self.fit_model_numbers[
-#                 self.fit_model_translate[
-#                     self.model.get()]]) + "select"
-#         fit_object_str += "+".join([str(c[1]) for c in selected_comps])
-
-#         self.output = [model_name, fit_object_str, vars_dict]
-#         return self.output
-
-#     def model_class_callback(self, *args):
-#         self.modeltype_select['menu'].delete(0, 'end')
-#         for t in self._model_dict[self.model_class.get()].keys():
-#             self.modeltype_select['menu'].add_command(
-#                 label=t, command=lambda ty=t: self.model_type.set(ty))
-#         self.model_type.set(
-#             list(self._model_dict[self.model_class.get()].keys())[0])
-
-#     def model_type_callback(self, *args):
-#         self.model_select['menu'].delete(0, 'end')
-#         models = [m for m in self._model_dict[
-#             self.model_class.get()][self.model_type.get()].keys()]
-#         self.model.set(models[0])
-#         for model in models:
-#             self.model_select['menu'].add_command(
-#                 label=model, command=lambda m=model: self.model.set(m))
-
-#     def update_components(self, *args):
-#         curr_keys = list(self.components.keys())
-#         for key in curr_keys:
-#             del self.components[key]
-#             self.comp_checks[key].grid_forget()
-#             del self.comp_checks[key]
-#         self.components = {}
-#         self.comp_checks = {}
-#         if re.search('para', self.model_class.get(), re.I):
-#             comps = ["All"]
-#         else:
-#             comps = [char for char in self.model.get(
-#             ) if re.search('[A-Za-z]', char)]
-#             comps.sort()
-#         r = 0
-#         col = 0
-#         for c in comps:
-#             self.components[c] = tk.IntVar(value=1)
-#         for c in self.components.keys():
-#             self.comp_checks[c] = tk.ttk.Checkbutton(
-#                 self.comp_list, variable=self.components[c],
-#                 text=c,
-#                 command=self.callback)
-#             self.comp_checks[c].grid(row=r, column=col, sticky='w')
-#             r += 1
-#             if r > 5:
-#                 r = 0
-#                 col += 1
-
-#         if re.search('para', self.model_class.get(), re.I):
-#             self.comp_checks["All"].config(state='disabled')
-#         self.update_model_disp()
-#         self.callback()
-
-#     # def select_all_comp(self, *args):
-#     #     for var in self.components.values():
-#     #         var.set(self.select_all.get())
-
-#     def update_model_disp(self, *args):
-#         lbl = self.fit_models.model_dict[self.fit_model_translate[
-#             self.model.get()]]['mechanism']
-#         lbl = ";\n".join([lb.strip() for lb in lbl.split(";")])
-#         self.model_display.config(text=lbl)
 
 class FitResultsDisplay(tk.Toplevel):
     def __init__(self, parent, entry_dict, controller=None, headers=[],

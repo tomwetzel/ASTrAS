@@ -236,8 +236,6 @@ class MidpointNormalizeFair(mpl.colors.Normalize):
 
 
 # helper and/or wrapper functions for plotting with matplotlib
-
-
 def get_fill_list(fill, numlines):
     if type(fill) is list or type(fill) is np.ndarray:
         fill_list = [0 for i in range(numlines)]
