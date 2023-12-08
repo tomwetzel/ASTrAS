@@ -114,7 +114,7 @@ class FitModels():
             self.model_dict[key]['category'] = "Branched Chain"
         alpha_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         # auto generate dicts for unidirectional models
-        for key in ['AB', 'ABC', 'ABCD', 'ABCDE']:
+        for key in ['AB', 'ABC', 'ABCD', 'ABCDE', 'ABCDEF', 'ABCDEFG', 'ABCDEFGH']:
             self.model_dict[key] = {'mechanism': "A->B; B->C; ...",
                                     'tau_order': [],
                                     'category': "Chain",
