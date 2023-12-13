@@ -109,7 +109,17 @@ class FitModels():
                           'tau_order': ["AC", "BC", "CD", "DE", "E"],
                           'number_of_species': 5,
                           'number_of_decays': 5,
-                          'func': self._kinetic_branch_eight}}
+                          'func': self._kinetic_branch_eight},
+            'ABCD|E': {'mechanism': "A->B; B->C; C->D; E->None",
+                      'tau_order': ["AB", "BC", "CD", "D", "E"],
+                      'number_of_species': 5,
+                      'number_of_decays': 5,
+                      'func': self._kinetic_branch_nine},
+            'ABCDE|F': {'mechanism': "A->B; B->C; C->D; D->E; F->None",
+                      'tau_order': ["AB", "BC", "CD", "DE", "E", "F"],
+                      'number_of_species': 6,
+                      'number_of_decays': 6,
+                      'func': self._kinetic_branch_ten}}
         for key in self.model_dict.keys():
             self.model_dict[key]['category'] = "Branched Chain"
         alpha_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -409,6 +419,7 @@ class FitModels():
         comp_D = f(t, tau[-1])
         return np.concatenate((c, np.array(comp_D)[np.newaxis, :]))
     
+    
     def _kinetic_branch_eight(self, f, t, p, *args, inf_comp=None, **kwargs):
         # A->C, B->C; C->D; D->E
         # k = [k_AC, k_BC, k_CD, k_DE]
@@ -448,6 +459,18 @@ class FitModels():
                      * (f(t, tau[4])-f(t, tau[3])))))
         return np.array(c)
 
+    
+    def _kinetic_branch_nine(self, f, t, p, *args, inf_comp=None, **kwargs):
+        k, tau = self.convert_tau_k(p)
+        c = self._kinetic_chain(f, t, p, num_comp=4, inf_comp=inf_comp)
+        comp_D = f(t, tau[-1])
+        return np.concatenate((c, np.array(comp_D)[np.newaxis, :]))
+    
+    def _kinetic_branch_ten(self, f, t, p, *args, inf_comp=None, **kwargs):
+        k, tau = self.convert_tau_k(p)
+        c = self._kinetic_chain(f, t, p, num_comp=5, inf_comp=inf_comp)
+        comp_D = f(t, tau[-1])
+        return np.concatenate((c, np.array(comp_D)[np.newaxis, :]))
 # multi start fit wrapper functions:
 # run fit multiple times varying the guesses stochastically and
 # return results from fit with lowest lsq
