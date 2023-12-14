@@ -119,7 +119,13 @@ class FitModels():
                       'tau_order': ["AB", "BC", "CD", "DE", "E", "F"],
                       'number_of_species': 6,
                       'number_of_decays': 6,
-                      'func': self._kinetic_branch_ten}}
+                      'func': self._kinetic_branch_ten},
+            
+            'ABC|AD': {'mechanism': "A->B + A->D; B->C",
+                      'tau_order': ["AB", "AD", "BC", "C", "D"],
+                      'number_of_species': 4,
+                      'number_of_decays': 5,
+                      'func': self._kinetic_branch_eleven}}
         for key in self.model_dict.keys():
             self.model_dict[key]['category'] = "Branched Chain"
         alpha_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -471,6 +477,33 @@ class FitModels():
         c = self._kinetic_chain(f, t, p, num_comp=5, inf_comp=inf_comp)
         comp_D = f(t, tau[-1])
         return np.concatenate((c, np.array(comp_D)[np.newaxis, :]))
+    
+    def _kinetic_branch_eleven(self, f, t, p, *args, inf_comp=None, **kwargs):
+        # A->B + A->D; B->C
+        # k[0],k[1],... = k_AB, k_AD, k_BC, k_C, k_D
+        # k_A: k[0] + k[1]
+        # "AB", "AD", "BC", "C", "D"
+        k, tau = self.convert_tau_k(p)
+        k_A = k[0] + k[1]
+        # solutions
+        # A
+        c = [np.array(f(t, 1/(k[0] + k[1])))]
+        # B
+        c.append(np.array(k[0]/(k[2]-k[0]-k[1]) *
+                 (f(t, 1/(k[0] + k[1])) - f(t, tau[2]))))
+        # C
+        c.append(np.array(((k[2] * k[0] * f(t, tau[3]) * (
+                                (k[3]+k[2]) * f(t, 1/(k[3]-k_A))
+                                + (k_A-k[3]) * f(t, 1/(k[3]+k[2]))))
+                            / ((k[3]+k[2]) * (k[3]-k_A) * (k[2]-k_A)))
+                        - (((k[2] * k[0]) * (k[2]+k_A))
+                            / ((k[3]+k[2]) * (k[3]-k_A)**2))))
+        # D
+        c.append(np.array(k[1]/(k[4]-k[0]-k[1]) *
+                 (f(t, 1/(k[0] + k[1])) - f(t, tau[4]))))
+        return np.array(c)
+    
+    
 # multi start fit wrapper functions:
 # run fit multiple times varying the guesses stochastically and
 # return results from fit with lowest lsq
