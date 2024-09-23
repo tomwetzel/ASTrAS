@@ -109,7 +109,12 @@ class FitModels():
                           'tau_order': ["AC", "BC", "CD", "DE", "E"],
                           'number_of_species': 5,
                           'number_of_decays': 5,
-                          'func': self._kinetic_branch_eight}}
+                          'func': self._kinetic_branch_eight},
+            'AB|ACD': {'mechanism': "A->B (B to None); A->C->D",
+                           'tau_order': ["AB", "AC", "CD"],  # Only 3 rate constants are involved: AB, AC, and CD
+                           'number_of_species': 4,            # Species are A, B, C, D
+                           'number_of_decays': 3,             # There are 3 decays (A -> B, A -> C, C -> D)
+                           'func': self._kinetic_two_pathways}}
         for key in self.model_dict.keys():
             self.model_dict[key]['category'] = "Branched Chain"
         alpha_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -447,6 +452,31 @@ class FitModels():
                  - k[1] * (1-q) / ((k[2]-k[1]) * (k[3]-k[2])))
                      * (f(t, tau[4])-f(t, tau[3])))))
         return np.array(c)
+    
+    def _kinetic_branch_nine(self, f, t, p, *args, **kwargs):
+        # A->B (B to None); A->C->D
+        # k = [k_AB, k_AC, k_CD]
+        # 
+
+        k, tau = self.convert_tau_k(p)
+    
+        # First pathway: A -> B (B disappears, so no further component for B)
+        # Solution for A(t)
+        c_A = np.array(f(t, tau[0]))
+
+        # Solution for B(t), which decays to None
+        # B(t) is only transient, based on A->B kinetics
+        c_B = np.array(k[0] * f(t, tau[0]))
+
+        # Second pathway: A -> C -> D
+        # Solution for C(t) based on A -> C transition
+        c_C = np.array(k[1] * (f(t, tau[0]) - f(t, tau[1])))
+
+        # Solution for D(t) based on C -> D transition
+        c_D = np.array(k[2] * (f(t, tau[1]) - f(t, tau[2])))
+
+        # Return the concentrations of A, B, C, D as a numpy array
+        return np.array([c_A, c_B, c_C, c_D])
 
 # multi start fit wrapper functions:
 # run fit multiple times varying the guesses stochastically and
