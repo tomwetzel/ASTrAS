@@ -110,11 +110,11 @@ class FitModels():
                           'number_of_species': 5,
                           'number_of_decays': 5,
                           'func': self._kinetic_branch_eight},
-            'AB|ACD': {'mechanism': "A->B (B to None); A->C->D",
+            'TEST: AB|ACD': {'mechanism': "A->B (B to None); A->C->D",
                            'tau_order': ["AB", "AC", "CD"],  # Only 3 rate constants are involved: AB, AC, and CD
                            'number_of_species': 4,            # Species are A, B, C, D
                            'number_of_decays': 3,             # There are 3 decays (A -> B, A -> C, C -> D)
-                           'func': self._kinetic_two_pathways}}
+                           'func': self._kinetic_branch_nine}}
         for key in self.model_dict.keys():
             self.model_dict[key]['category'] = "Branched Chain"
         alpha_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -454,28 +454,28 @@ class FitModels():
         return np.array(c)
     
     def _kinetic_branch_nine(self, f, t, p, *args, **kwargs):
-        # A->B (B to None); A->C->D
+         # A -> B (B to None); A -> C -> D
         # k = [k_AB, k_AC, k_CD]
-        # 
-
-        k, tau = self.convert_tau_k(p)
     
-        # First pathway: A -> B (B disappears, so no further component for B)
-        # Solution for A(t)
-        c_A = np.array(f(t, tau[0]))
+        k, tau = self.convert_tau_k(p)
 
-        # Solution for B(t), which decays to None
-        # B(t) is only transient, based on A->B kinetics
+        # Ensure k and tau are in reasonable bounds to avoid rapid decay
+        epsilon = 1e-9
+        tau = np.clip(tau, epsilon, 1e2)  # Adjust tau to avoid too fast/slow decay
+    
+        # Pathway 1: A -> B, B disappears
+        c_A = np.array(f(t, tau[0]))  # Concentration of A over time
+
+        # Pathway 1: A -> B (B disappears)
         c_B = np.array(k[0] * f(t, tau[0]))
 
-        # Second pathway: A -> C -> D
-        # Solution for C(t) based on A -> C transition
+        # Pathway 2: A -> C
         c_C = np.array(k[1] * (f(t, tau[0]) - f(t, tau[1])))
 
-        # Solution for D(t) based on C -> D transition
-        c_D = np.array(k[2] * (f(t, tau[1]) - f(t, tau[2])))
+        # Pathway 2: C -> D (Ensure tau[2] is stable with epsilon)
+        c_D = np.array(k[2] * (f(t, tau[1]) - f(t, tau[2] + epsilon)))
 
-        # Return the concentrations of A, B, C, D as a numpy array
+        # Return the concentrations for species A, B, C, D
         return np.array([c_A, c_B, c_C, c_D])
 
 # multi start fit wrapper functions:
